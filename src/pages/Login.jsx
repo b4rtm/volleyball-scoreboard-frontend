@@ -1,15 +1,32 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import * as stomp from "@stomp/stompjs";
+
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
-  const handleSubmit = (event) => {
+    useEffect(() => {
+        const client = new stomp.Client({
+            brokerURL: 'ws://127.0.0.1:8080/websocket',
+            onConnect: () => {
+              client.subscribe('/topic/greetings', message =>
+                console.log(`Received: ${message.body}`)
+              );
+              client.publish({ destination: '/app/hello', body: JSON.stringify({'login':"loginek", "password":"123" })});
+            },
+          });
+        
+          client.activate();
+
+
+    }, []);
+
+
+    const handleSubmit = (event) => {
     event.preventDefault();
-    // Zaloguj użytkownika
-    console.log(`Login: ${email}, Hasło: ${password}`);
-  };
+    };
 
   return (
 <div className="container mx-auto max-w-sm p-4">
@@ -19,7 +36,6 @@ const Login = () => {
         <div className="mb-4">
           <label htmlFor="email" className="block text-gray-700 underline">Email</label>
           <input
-            type="email"
             id="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
