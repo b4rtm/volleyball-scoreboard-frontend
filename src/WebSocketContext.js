@@ -12,13 +12,22 @@ export const WebSocketProvider = ({ children }) => {
             onConnect: () => {
                 console.log('Connected to WebSocket');
             },
+            onError: (error) => {
+                console.error('WebSocket error:', error);
+              },
         });
 
         client.activate();
         setWebsocket(client);
 
-        return () => {
+        client.disconnect = () => {
             client.deactivate();
+            setWebsocket(null);
+            console.log('Disconnected from WebSocket');
+        };
+
+        return () => {
+            client.disconnect();
         };
     }, []);
 
