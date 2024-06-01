@@ -1,63 +1,61 @@
-import React from 'react';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { useState } from 'react';
 import { useWebSocket } from '../WebSocketContext';
-
+import { jwtDecode } from 'jwt-decode';
 
 const Login = () => {
-    const [login, setLogin] = useState('');
-    const [password, setPassword] = useState('');
-    const websocket = useWebSocket();
 
-    const handleSubmit = (event) => {
-      event.preventDefault();
-      if (websocket) {
-        websocket.publish({
-            destination: '/app/auth',
-            body: JSON.stringify({ login, password }),
-        });
-        websocket.subscribe('/topic/authRes', message =>
-          console.log(`Received: ${message.body}`)
-        );      
-      }
-      else{
-        console.log('lipa')
-      }
-    };
+  const [loginError, setLoginError] = useState(null);
+  const websocket = useWebSocket();
+
+  const handleGoogleLoginSuccess = (response) => {
+    console.log('Logowanie Google zakończone sukcesem', response);
+    const decodedToken = jwtDecode(response.credential);
+    sendLoginRequest(decodedToken);
+  };
+
+
+  const handleGoogleLoginError = (response) => {
+    console.log('Błąd logowania Google', response.profileObj.email);
+    setLoginError(response.error);
+  };
+
+  const sendLoginRequest = (accessToken) => {
+    const authData = {
+      login: accessToken.email,
+      password: ""
+    }
+
+    if (websocket){
+      websocket.publish({
+        destination: '/app/auth',
+        body: JSON.stringify(authData),
+      });
+
+      websocket.subscribe('/topic/authRes', message => {
+        const response = JSON.parse(message.body);
+        console.log('Odpowiedź serwera po udanym logowaniu:', response);
+      }); 
+    } else {
+        console.log("nie udało się stworzyć websocketa")
+    }
+     
+  };
 
   return (
-<div className="container mx-auto max-w-sm p-4">
-      <h1 className="text-2xl font-bold text-center mb-4">Logowanie</h1>
+    <GoogleOAuthProvider clientId={process.env.REACT_APP_CLIENT_ID}>
+      <div className="container mx-auto max-w-sm p-4">
+        <h1 className="text-2xl font-bold text-center mb-4">Logowanie</h1>
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="login" className="block text-gray-700">Login</label>
-          <input
-            id="login"
-            value={login}
-            onChange={(event) => setLogin(event.target.value)}
-            className="w-full rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <div className="flex justify-center mt-4">
+          <GoogleLogin
+            onSuccess={handleGoogleLoginSuccess}
+            onError={handleGoogleLoginError}
           />
         </div>
-
-        <div className="mb-4">
-          <label htmlFor="password" className="block text-gray-700">Hasło</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="w-full py-2 px-4 rounded-md bg-blue-500 text-white font-bold hover:bg-blue-600"
-        >
-          Zaloguj się
-        </button>
-      </form>
-    </div>
+        {loginError && <div className="text-red-500 text-center mt-2">{loginError}</div>}
+      </div>
+    </GoogleOAuthProvider>
   );
 };
 
