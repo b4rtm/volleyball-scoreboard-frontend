@@ -4,7 +4,6 @@ const Login = () => {
 
   const handleGoogleLoginSuccess = (response) => {
     console.log('Logowanie Google zakończone sukcesem', response);
-    // Wyślij token do swojego backendu w celu weryfikacji
   };
 
   const handleGoogleLoginError = (response) => {
@@ -16,7 +15,7 @@ const Login = () => {
       <div className="container mx-auto max-w-sm p-4">
         <h1 className="text-2xl font-bold text-center mb-4">Logowanie</h1>
 
-        <div className="text-center mt-4">
+        <div className="flex justify-center mt-4">
           <GoogleLogin
             onSuccess={handleGoogleLoginSuccess}
             onError={handleGoogleLoginError}
