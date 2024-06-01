@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import moment from 'moment'; // Import Moment.js
 import { useWebSocket } from '../WebSocketContext';
 
 const AddMatch = () => {
     const [teams, setTeams] = useState([]);
     const [teamA, setTeamA] = useState('');
     const [teamB, setTeamB] = useState('');
-    const [date, setDate] = useState(new Date().toISOString().slice(0, 16));
+    const [date, setDate] = useState(moment().format('YYYY-MM-DDTHH:mm')); // Dodaj 2 godziny do bieżącej daty
     const [status, setStatus] = useState('IN_PROGRESS');
     const websocket = useWebSocket();
 
@@ -31,16 +32,16 @@ const AddMatch = () => {
     }, [websocket]);
 
     const handleDateChange = (event) => {
-        const selectedDate = new Date(event.target.value);
-        const now = new Date();
-        setDate(event.target.value);
-        setStatus(selectedDate > now ? 'PLANNED' : 'IN_PROGRESS');
+        const selectedDate = event.target.value;
+        const now = moment();
+        setDate(selectedDate);
+        setStatus(moment(selectedDate) > now ? 'PLANNED' : 'IN_PROGRESS');
     };
 
     const handleSubmit = (event) => {
         event.preventDefault();
         if (!websocket) {
-            console.log('WebSocket nie jest połączony');
+            console.log('WebSocket is not connected');
             return;
         }
 
@@ -51,7 +52,6 @@ const AddMatch = () => {
             status,
         };
         
-        console.log( JSON.stringify(match));
         websocket.publish({
             destination: '/app/addMatch',
             body: JSON.stringify(match),
@@ -59,7 +59,6 @@ const AddMatch = () => {
     };
 
     return (
-
         <div className="container mx-auto max-w-sm p-4">
             <h1 className="text-2xl font-bold text-center mb-4">Add new match</h1>
             <form onSubmit={handleSubmit}>
