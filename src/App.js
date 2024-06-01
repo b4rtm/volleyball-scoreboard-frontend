@@ -1,12 +1,19 @@
 import { WebSocketProvider } from './WebSocketContext';
+import AddMatch from './components/AddMatch';
 import Login from './pages/Login';
+import StartPage from './pages/StartPage';
+import {Route, Routes, BrowserRouter } from 'react-router-dom';
 
 function App() {
   return (
     <WebSocketProvider>
-    <div className="App">
-      <Login />
-    </div>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Login/>} />
+          <Route path="/start" element={<StartPage/>} />
+        </Routes>
+      </BrowserRouter>
+
     </WebSocketProvider>
   );
 }
