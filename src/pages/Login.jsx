@@ -4,28 +4,31 @@ import * as stomp from "@stomp/stompjs";
 
 
 const Login = () => {
-    const [email, setEmail] = useState('');
+    const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
+    const [websocket, setWebsocket] = useState('');
+
 
     useEffect(() => {
-        const client = new stomp.Client({
+        const websocket = new stomp.Client({
             brokerURL: 'ws://127.0.0.1:8080/websocket',
             onConnect: () => {
-              client.subscribe('/topic/greetings', message =>
+              websocket.subscribe('/topic/authRes', message =>
                 console.log(`Received: ${message.body}`)
               );
-              client.publish({ destination: '/app/hello', body: JSON.stringify({'login':"loginek", "password":"123" })});
+              
             },
           });
         
-          client.activate();
+          websocket.activate();
 
-
+          setWebsocket(websocket);
     }, []);
 
 
     const handleSubmit = (event) => {
-    event.preventDefault();
+      event.preventDefault();
+      websocket.publish({ destination: '/app/auth', body: JSON.stringify({'login': login, "password": password})});
     };
 
   return (
@@ -34,17 +37,17 @@ const Login = () => {
 
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label htmlFor="email" className="block text-gray-700 underline">Email</label>
+          <label htmlFor="login" className="block text-gray-700">Login</label>
           <input
-            id="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            id="login"
+            value={login}
+            onChange={(event) => setLogin(event.target.value)}
             className="w-full rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         <div className="mb-4">
-          <label htmlFor="password" className="block text-gray-700 underline">Hasło</label>
+          <label htmlFor="password" className="block text-gray-700">Hasło</label>
           <input
             type="password"
             id="password"
