@@ -1,34 +1,27 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
-import * as stomp from "@stomp/stompjs";
+import { useState } from 'react';
+import { useWebSocket } from '../WebSocketContext';
 
 
 const Login = () => {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
-    const [websocket, setWebsocket] = useState('');
-
-
-    useEffect(() => {
-        const websocket = new stomp.Client({
-            brokerURL: 'ws://127.0.0.1:8080/websocket',
-            onConnect: () => {
-              websocket.subscribe('/topic/authRes', message =>
-                console.log(`Received: ${message.body}`)
-              );
-              
-            },
-          });
-        
-          websocket.activate();
-
-          setWebsocket(websocket);
-    }, []);
-
+    const websocket = useWebSocket();
 
     const handleSubmit = (event) => {
       event.preventDefault();
-      websocket.publish({ destination: '/app/auth', body: JSON.stringify({'login': login, "password": password})});
+      if (websocket) {
+        websocket.publish({
+            destination: '/app/auth',
+            body: JSON.stringify({ login, password }),
+        });
+        websocket.subscribe('/topic/authRes', message =>
+          console.log(`Received: ${message.body}`)
+        );      
+      }
+      else{
+        console.log('lipa')
+      }
     };
 
   return (
