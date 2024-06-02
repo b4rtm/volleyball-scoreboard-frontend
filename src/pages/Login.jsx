@@ -2,17 +2,31 @@ import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { useState } from 'react';
 import { useWebSocket } from '../WebSocketContext';
 import { jwtDecode } from 'jwt-decode';
+import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const Login = () => {
+  const DAYS_TO_COOKIE_EXPIRE = 1
 
   const [loginError, setLoginError] = useState(null);
   const websocket = useWebSocket();
+  const navigate = useNavigate()
 
   const handleGoogleLoginSuccess = (response) => {
     console.log('Logowanie Google zakończone sukcesem', response);
     const decodedToken = jwtDecode(response.credential);
+    console.log(decodedToken)
     sendLoginRequest(decodedToken);
+    
+    Cookies.set('userData', JSON.stringify({
+      email: decodedToken.email,
+      picture: decodedToken.picture
+    }), { expires: DAYS_TO_COOKIE_EXPIRE }); 
+
+    navigate('/start')
   };
+
+
 
 
   const handleGoogleLoginError = (response) => {
