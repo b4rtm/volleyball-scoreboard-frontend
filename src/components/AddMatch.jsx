@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
-import { useWebSocket } from '../WebSocketContext';
 
-const AddMatch = () => {
-    const [teams, setTeams] = useState([]);
+const AddMatch = ({ teams, websocket }) => {
     const [teamA, setTeamA] = useState('');
     const [teamB, setTeamB] = useState('');
     const [date, setDate] = useState(moment().format('YYYY-MM-DDTHH:mm'));
@@ -12,29 +10,6 @@ const AddMatch = () => {
     const [pointsToWinSet, setPointsToWinSet] = useState(25);
     const [isTieBreak, setIsTieBreak] = useState(true);
     const [pointsToWinTieBreak, setPointsToWinTieBreak] = useState(15);
-
-    const websocket = useWebSocket();
-
-    useEffect(() => {
-        if (!websocket) {
-            return;
-        } 
-    
-        const handleTeamsMessage = (message) => {
-            const data = JSON.parse(message.body);
-            setTeams(data);
-        };
-    
-        // Odbierz drużyny po nawiązaniu połączenia
-        websocket.onConnect = () => {
-            websocket.subscribe('/topic/teams', handleTeamsMessage);
-            websocket.publish({ destination: '/app/getTeams' });
-        };
-    
-        return () => {
-            websocket.disconnect(); // Dodaj funkcję do rozłączania WebSocket
-        };
-    }, [websocket]);
 
     const handleDateChange = (event) => {
         const selectedDate = event.target.value;
@@ -60,7 +35,7 @@ const AddMatch = () => {
             isTieBreak,
             pointsToWinTieBreak
         };
-        
+
         websocket.publish({
             destination: '/app/addMatch',
             body: JSON.stringify(match),
