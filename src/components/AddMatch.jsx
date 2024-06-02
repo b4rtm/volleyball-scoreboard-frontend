@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import moment from 'moment'; // Import Moment.js
+import moment from 'moment';
 import { useWebSocket } from '../WebSocketContext';
 
 const AddMatch = () => {
     const [teams, setTeams] = useState([]);
     const [teamA, setTeamA] = useState('');
     const [teamB, setTeamB] = useState('');
-    const [date, setDate] = useState(moment().format('YYYY-MM-DDTHH:mm')); // Dodaj 2 godziny do bieżącej daty
+    const [date, setDate] = useState(moment().format('YYYY-MM-DDTHH:mm'));
     const [status, setStatus] = useState('IN_PROGRESS');
+    const [setsToWin, setSetsToWin] = useState(3);
+    const [pointsToWinSet, setPointsToWinSet] = useState(25);
+    const [isTieBreak, setIsTieBreak] = useState(true);
+    const [pointsToWinTieBreak, setPointsToWinTieBreak] = useState(15);
+
     const websocket = useWebSocket();
 
     useEffect(() => {
@@ -50,6 +55,10 @@ const AddMatch = () => {
             teamB,
             date,
             status,
+            setsToWin,
+            pointsToWinSet,
+            isTieBreak,
+            pointsToWinTieBreak
         };
         
         websocket.publish({
@@ -102,6 +111,54 @@ const AddMatch = () => {
                         className="w-full rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
+
+                <div className="mb-4">
+                    <label htmlFor="setsToWin" className="block text-gray-700">Sets to win</label>
+                    <input
+                        type="number"
+                        id="setsToWin"
+                        value={setsToWin}
+                        onChange={(e) => setSetsToWin(e.target.value)}
+                        className="w-full rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+
+                <div className="mb-4">
+                    <label htmlFor="pointsToWinSet" className="block text-gray-700">Points to win a set</label>
+                    <input
+                        type="number"
+                        id="pointsToWinSet"
+                        value={pointsToWinSet}
+                        onChange={(e) => setPointsToWinSet(e.target.value)}
+                        className="w-full rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+
+                <div className="mb-4">
+                    <label htmlFor="isTieBreak" className="block text-gray-700">Is tie-break?</label>
+                    <select
+                        id="isTieBreak"
+                        value={isTieBreak}
+                        onChange={(e) => setIsTieBreak(e.target.value === 'true')}
+                        className="w-full rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+
+                {isTieBreak && (
+                    <div className="mb-4">
+                        <label htmlFor="pointsToWinTieBreak" className="block text-gray-700">Points to win tie-break</label>
+                        <input
+                            type="number"
+                            id="pointsToWinTieBreak"
+                            value={pointsToWinTieBreak}
+                            onChange={(e) => setPointsToWinTieBreak(e.target.value)}
+                            className="w-full rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                )}
 
                 <button
                     type="submit"

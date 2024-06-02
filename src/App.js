@@ -1,5 +1,4 @@
 import { WebSocketProvider } from './WebSocketContext';
-import AddMatch from './components/AddMatch';
 import Login from './pages/Login';
 import StartPage from './pages/StartPage';
 import {Route, Routes, BrowserRouter } from 'react-router-dom';
