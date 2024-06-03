@@ -5,6 +5,8 @@ const ManageTeams = ({ teams, websocket }) => {
     const [selectedTeam, setSelectedTeam] = useState(null);
     const [playerName, setPlayerName] = useState('');
     const [players, setPlayers] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [teamToDelete, setTeamToDelete] = useState(null);
 
     const handleAddTeam = (event) => {
         event.preventDefault();
@@ -65,16 +67,28 @@ const ManageTeams = ({ teams, websocket }) => {
         setPlayers([]);
     };
 
-    const handleDeleteTeam = (teamId) => {
-        if (!websocket) {
-            console.log('WebSocket is not connected');
+    const openDeleteModal = (teamId) => {
+        setTeamToDelete(teamId);
+        setIsModalOpen(true);
+    };
+
+    const closeDeleteModal = () => {
+        setIsModalOpen(false);
+        setTeamToDelete(null);
+    };
+
+    const confirmDeleteTeam = () => {
+        if (!websocket || !teamToDelete) {
+            console.log('WebSocket is not connected or no team selected for deletion');
             return;
         }
 
         websocket.publish({
             destination: '/app/deleteTeam',
-            body: JSON.stringify({ id: teamId }),
+            body: JSON.stringify({ id: teamToDelete }),
         });
+
+        closeDeleteModal();
     };
 
     const handleAddPlayer = () => {
@@ -160,7 +174,7 @@ const ManageTeams = ({ teams, websocket }) => {
                                     Edit
                                 </button>
                                 <button
-                                    onClick={() => handleDeleteTeam(team.id)}
+                                    onClick={() => openDeleteModal(team.id)}
                                     className="text-red-500 hover:text-red-700">
                                     Delete
                                 </button>
@@ -169,6 +183,27 @@ const ManageTeams = ({ teams, websocket }) => {
                     ))}
                 </ul>
             </div>
+
+            {isModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75">
+                    <div className="bg-white p-6 rounded-md shadow-md">
+                        <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
+                        <p>Are you sure you want to delete this team?</p>
+                        <div className="mt-4 flex justify-end">
+                            <button
+                                onClick={closeDeleteModal}
+                                className="py-2 px-4 mr-2 rounded-md bg-gray-300 text-gray-700 hover:bg-gray-400">
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmDeleteTeam}
+                                className="py-2 px-4 rounded-md bg-red-500 text-white font-bold hover:bg-red-600">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
