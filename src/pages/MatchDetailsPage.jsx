@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWebSocket } from '../WebSocketContext';
 import { useParams } from 'react-router-dom';
+import TeamDetails from '../components/TeamDetails';
 
 const MatchDetailsPage = () => {
     const [match, setMatch] = useState(null);
@@ -40,60 +41,36 @@ const MatchDetailsPage = () => {
         };
     }, [websocket, matchId]);
 
-    const renderTeamA = () => {
-        if (!match || !match.teamA) {
-            return null;
-        }
-
-        return (
-            <div>
-                <p>Name: {match.teamA.name}</p>
-                <p>Players:</p>
-                <ul>
-                    {match.teamA.players.map((player, index) => (
-                        <li key={index}>{player}</li>
-                    ))}
-                </ul>
-            </div>
-        );
-    };
-
-    const renderTeamB = () => {
-        if (!match || !match.teamB) {
-            return null;
-        }
-
-        return (
-            <div>
-                <p>Name: {match.teamB.name}</p>
-                <p>Players:</p>
-                <ul>
-                    {match.teamB.players.map((player, index) => (
-                        <li key={index}>{player}</li>
-                    ))}
-                </ul>
-            </div>
-        );
-    };
-
     const renderMatchDetails = () => {
         if (!match) {
-            return <p>Loading...</p>;
+            return <p className="text-center mt-4">Loading...</p>;
         }
 
         return (
-            <div>
-                <h1>Match Details</h1>
-                <p>Status: {match.status}</p>
-                <p>Result: {match.result}</p>
-                <p>Result Detailed:</p>
-                <ul>
+            <div className="bg-white p-8 rounded-lg shadow-lg">
+                <h1 className="text-2xl font-bold mb-4">Match Details</h1>
+                <p><span className="font-semibold">Status:</span> {match.status}</p>
+                <p><span className="font-semibold">Result:</span> {match.result}</p>
+                <p className="mt-4 font-semibold">Result Detailed:</p>
+                <ul className="list-decimal list-inside ml-4">
                     {match.resultDetailed.resD.map((setResult, index) => (
                         <li key={index}>{setResult}</li>
                     ))}
                 </ul>
-                {isSwitched ? renderTeamB() : renderTeamA()}
-                {isSwitched ? renderTeamA() : renderTeamB()}
+                
+                <div className="mt-4 flex justify-between">
+                    {isSwitched ? (
+                        <>
+                            <TeamDetails team={match.teamB} bgColor="bg-green-100" />
+                            <TeamDetails team={match.teamA} bgColor="bg-blue-100" />
+                        </>
+                    ) : (
+                        <>
+                            <TeamDetails team={match.teamA} bgColor="bg-blue-100" />
+                            <TeamDetails team={match.teamB} bgColor="bg-green-100" />
+                        </>
+                    )}
+                </div>
             </div>
         );
     };
@@ -104,12 +81,17 @@ const MatchDetailsPage = () => {
         };
 
         return (
-            <button onClick={switchSides}>Switch Sides</button>
+            <button 
+                onClick={switchSides}
+                className="mt-8 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none"
+            >
+                Switch Sides
+            </button>
         );
     };
 
     return (
-        <div>
+        <div className="max-w-4xl mx-auto mt-8">
             {renderMatchDetails()}
             {renderSwitchSidesButton()}
         </div>
