@@ -16,6 +16,7 @@ const MatchesList = () => {
     
         const handleGettingMatches = (message) => {
             const data = JSON.parse(message.body);
+            console.log(data)
             setMatches(data);
             setLoadingMatches(false)
         };
@@ -38,45 +39,51 @@ const MatchesList = () => {
     )}
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 flex flex-col justify-center items-center">
             {
                 matches.map((match, index) => {
                     if (match.timeline !== null) {
+                        console.log(match)
                         const sets = JSON.parse(match.timeline);
                         return sets.map((set, setIndex) => {
+                            const teamARoundsDiv = [];
                             const teamARounds = [];
+                            const teamBRoundsDiv = [];
                             const teamBRounds = [];
                             set.forEach((round, roundIndex) => {
-                                console.log(match)
                                 if (round.teamId === match.teamA.id) {
-                                    teamARounds.push(
-                                        <div key={roundIndex} className="result-grid-element">
-                                            Point: {round.point}
+                                    teamARoundsDiv.push(
+                                        <div key={roundIndex} className="result-grid-element w-8 h-8 flex items-center justify-center bg-gray-400">
+                                            {round.point}
                                         </div>
                                     );
+                                    teamBRoundsDiv.push(<div key={`teamB-${roundIndex}`} className="result-grid-element w-8 h-8 flex items-center justify-center bg-transparent"></div>)
+                                    teamARounds.push(round.point)
                                 } 
                                 else if (round.teamId === match.teamB.id) {
-                                    teamBRounds.push(
-                                        <div key={roundIndex} className="result-grid-element">
-                                            Point: {round.point}
+                                    teamBRoundsDiv.push(
+                                        <div key={roundIndex} className="result-grid-element w-8 h-8 flex items-center justify-center bg-gray-400">
+                                            {round.point}
                                         </div>
                                     );
+                                    teamARoundsDiv.push(<div key={`teamB-${roundIndex}`} className="result-grid-element w-8 h-8 flex items-center justify-center bg-transparent"></div>)
+                                    teamBRounds.push(round.point)
                                 }
                             });
     
                             return (
-                                <div key={setIndex} className="mb-4">
-                                    <h2 className="text-lg font-bold">Set {setIndex + 1}:</h2>
+                                <div key={setIndex} className="mb-4 inline-block items-center bg-gray-200 p-4">
+                                    <h2 className="text-lg font-bold">Set {setIndex + 1}: {Math.max(...teamARounds)}-{Math.max(...teamBRounds)} (time: )</h2>
                                     <div className="team-a-row mb-2">
-                                        <div className="font-semibold">{match.team1Name}</div>
-                                        <div className="grid grid-cols-12 gap-1 mt-2">
-                                            {teamARounds}
+                                        <div className="inline-grid grid-flow-col auto-cols-max gap-1 mt-2">
+                                            {match.teamA.name}
+                                            {teamARoundsDiv}
                                         </div>
                                     </div>
-                                    <div className="team-b-row mb-2">
-                                        <div className="font-semibold">{match.team2Name}</div>
-                                        <div className="grid grid-cols-12 gap-1 mt-2">
-                                            {teamBRounds}
+                                    <div className="team-b-row flex flex-row mb-2">
+                                        <div className="inline-grid grid-flow-col auto-cols-max gap-1 mt-2">
+                                            {match.teamB.name}
+                                            {teamBRoundsDiv}
                                         </div>
                                     </div>
                                 </div>
