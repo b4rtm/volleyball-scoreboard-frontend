@@ -1,43 +1,21 @@
 import { useEffect, useState } from "react";
-import { useWebSocket } from '../WebSocketContext';
 
 
-const MatchesList = () => {
+const MatchesList = ({ matches, websocket }) => {
     const TEXT_WIDTH_PX = 9
-
-    const [matches, setMatches] = useState([])
-    const [loadingMatches, setLoadingMatches] = useState(true)
-
-    const websocket = useWebSocket();
 
     useEffect(() => {
         if (!websocket) {
+            console.log('WebSocket is not connected');
             return;
-        } 
-    
-        const handleGettingMatches = (message) => {
-            const data = JSON.parse(message.body);
-            console.log(data)
-            setMatches(data);
-            setLoadingMatches(false)
-        };
+        }
     
         websocket.onConnect = () => {
-            websocket.subscribe('/topic/matches', handleGettingMatches);
             websocket.publish({ destination: '/app/getMatches' });
         };
     
-        return () => {
-            websocket.disconnect();
-        };
     }, [websocket]);
 
-
-    {loadingMatches && (
-        <div>
-            Loading matches...
-        </div>
-    )}
 
     return (
         <div className="space-y-6 flex flex-col justify-center items-center">
@@ -45,7 +23,6 @@ const MatchesList = () => {
                 matches.map((match, index) => {
                     if (match.timeline !== null) {
                         let maxWidth = Math.max(match.teamA.name.length, match.teamB.name.length)
-
                         const sets = JSON.parse(match.timeline);
                         return sets.map((set, setIndex) => {
                             const teamARoundsDiv = [];
