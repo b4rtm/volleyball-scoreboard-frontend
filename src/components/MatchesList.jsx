@@ -59,7 +59,10 @@ const MatchesList = () => {
                                             {round.point}
                                         </div>
                                     );
-                                    teamBRoundsDiv.push(<div key={`teamB-${roundIndex}`} className="result-grid-element w-8 h-8 flex items-center justify-center bg-transparent"></div>)
+                                  
+                                    teamBRoundsDiv.push(<div key={`teamB-${roundIndex}`} className={`result-grid-element w-8 h-8 flex items-center justify-center ${round.opponentBreak === 1 ? 'bg-yellow-400' : ''}`}>
+                                        {round.opponentBreak === 1 ? 'T' : null}
+                                    </div>)
                                     teamARounds.push(round.point)
                                 } 
                                 else if (round.teamId === match.teamB.id) {
@@ -68,7 +71,9 @@ const MatchesList = () => {
                                             {round.point}
                                         </div>
                                     );
-                                    teamARoundsDiv.push(<div key={`teamB-${roundIndex}`} className="result-grid-element w-8 h-8 flex items-center justify-center bg-transparent"></div>)
+                                    teamARoundsDiv.push(<div key={`teamB-${roundIndex}`} className={`result-grid-element w-8 h-8 flex items-center justify-center ${round.opponentBreak === 1 ? 'bg-yellow-400' : ''}`}>
+                                        {round.opponentBreak === 1 ? 'T' : null}
+                                    </div>)
                                     teamBRounds.push(round.point)
                                 }
                             });
