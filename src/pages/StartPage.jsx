@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import AddMatch from '../components/AddMatch';
 import UserInfoNav from '../components/UserInfoNav';
+import MatchesList from '../components/MatchesList';
 import { useWebSocket } from '../WebSocketContext';
 import ManageTeams from '../components/ManageTeams';
 
@@ -33,6 +34,8 @@ const StartPage = () => {
         <div>
             <UserInfoNav />
             <h1 className="text-2xl font-bold text-center mb-4">Start Page</h1>
+            <AddMatch />
+            <MatchesList />
             <AddMatch teams={teams} websocket={websocket}/>
             <ManageTeams teams={teams} websocket={websocket} />
         </div>
