@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-
+import { useEffect } from "react";
 
 const MatchesList = ({ matches, websocket }) => {
     const TEXT_WIDTH_PX = 9
+    const LONGEST_TEAM_NAME_PADDING = 3
 
     useEffect(() => {
         if (!websocket) {
@@ -15,6 +15,22 @@ const MatchesList = ({ matches, websocket }) => {
         };
     
     }, [websocket]);
+
+    const copyMatchToClipboard = (match) => {
+        const sets = JSON.parse(match.timeline);
+        const longestTeamNameLength = Math.max(match.teamA.name.length, match.teamB.name.length) + LONGEST_TEAM_NAME_PADDING
+        let matchDetails = ""
+        matchDetails = addHeaderPaddingSpaces(longestTeamNameLength, matchDetails);
+        matchDetails = addMatchHeader(matchDetails, sets);
+        matchDetails = addTeamLabel(matchDetails, longestTeamNameLength, match.teamA.name);
+        matchDetails = assignPointsToTeams(sets, match, matchDetails, longestTeamNameLength);
+        
+        navigator.clipboard.writeText(matchDetails).then(() => {
+            alert('Match details copied to clipboard');
+        }, (err) => {
+            console.error('Failed to copy: ', err);
+        });
+    };
 
 
     return (
@@ -85,6 +101,9 @@ const MatchesList = ({ matches, websocket }) => {
                                         </div>
                                     );
                                 })}
+                                <button className="bg-green-500 text-white px-2 py-1 rounded mt-4 p-3" onClick={() => copyMatchToClipboard(match)}>
+                                    Kopiuj wynik do schowka
+                                </button>
                             </div>
                         );
                     }
@@ -95,3 +114,73 @@ const MatchesList = ({ matches, websocket }) => {
 }
 
 export default MatchesList;
+function assignPointsToTeams(sets, match, matchDetails, longestTeamNameLength) {
+    const teamAPoints = [];
+    const teamBPoints = [];
+
+    let teamAWonSets = 0;
+    let teamBWonSets = 0;
+
+    sets.forEach(rounds => {
+        let teamASetPoints = rounds
+            .filter(round => round.teamId === match.teamA.id)
+            .map(round => round.point);
+
+        let teamBSetPoints = rounds
+            .filter(round => round.teamId === match.teamB.id)
+            .map(round => round.point);
+
+        teamAPoints.push(Math.max(...teamASetPoints));
+        teamBPoints.push(Math.max(...teamBSetPoints));
+
+        if (teamAPoints[teamAPoints.length - 1] > teamBPoints[teamBPoints.length - 1]) {
+            teamAWonSets++;
+        } else {
+            teamBWonSets++;
+        }
+    });
+
+    teamAPoints.forEach(setPoints => {
+        if (setPoints < 10) {
+            matchDetails += " ";
+        }
+        matchDetails += setPoints + "  |  ";
+    });
+    matchDetails += "  " + teamAWonSets;
+    matchDetails += "\n";
+    matchDetails = addTeamLabel(matchDetails, longestTeamNameLength, match.teamB.name);
+
+    teamBPoints.forEach(setPoints => {
+        if (setPoints < 10) {
+            matchDetails += " ";
+        }
+        matchDetails += setPoints + "  |  ";
+    });
+
+    matchDetails += "  " + teamBWonSets;
+    return matchDetails;
+}
+
+function addTeamLabel(matchDetails, longestTeamName, teamName) {
+    const spacesToAdd = longestTeamName - teamName.length
+    matchDetails += `${teamName}`;
+    for (let spaceCounter = 0; spaceCounter < spacesToAdd; spaceCounter++) {
+        matchDetails += " ";
+    }
+    return matchDetails;
+}
+
+function addHeaderPaddingSpaces(longestTeamNameLength, matchDetails) {
+    for (let spaceCounter = 0; spaceCounter < longestTeamNameLength; spaceCounter++) {
+        matchDetails += " ";
+    }
+    return matchDetails;
+}
+
+function addMatchHeader(matchDetails, sets) {
+    matchDetails += sets.map((_, index) => `S${index + 1}`).join("  |  ");
+    matchDetails += "  |  TOTAL"
+    matchDetails += "\n";
+    return matchDetails;
+}
+
