@@ -3,6 +3,7 @@ import { useWebSocket } from '../WebSocketContext';
 
 
 const MatchesList = () => {
+    const TEXT_WIDTH_PX = 9
 
     const [matches, setMatches] = useState([])
     const [loadingMatches, setLoadingMatches] = useState(true)
@@ -43,7 +44,8 @@ const MatchesList = () => {
             {
                 matches.map((match, index) => {
                     if (match.timeline !== null) {
-                        console.log(match)
+                        let maxWidth = Math.max(match.teamA.name.length, match.teamB.name.length)
+
                         const sets = JSON.parse(match.timeline);
                         return sets.map((set, setIndex) => {
                             const teamARoundsDiv = [];
@@ -76,13 +78,17 @@ const MatchesList = () => {
                                     <h2 className="text-lg font-bold">Set {setIndex + 1}: {Math.max(...teamARounds)}-{Math.max(...teamBRounds)} (time: )</h2>
                                     <div className="team-a-row mb-2">
                                         <div className="inline-grid grid-flow-col auto-cols-max gap-1 mt-2">
-                                            {match.teamA.name}
+                                            <div className="team-name" style={{ width: `${maxWidth * TEXT_WIDTH_PX}px` }}>
+                                                {match.teamA.name}
+                                            </div>
                                             {teamARoundsDiv}
                                         </div>
                                     </div>
                                     <div className="team-b-row flex flex-row mb-2">
                                         <div className="inline-grid grid-flow-col auto-cols-max gap-1 mt-2">
-                                            {match.teamB.name}
+                                            <div className="team-name" style={{ width: `${maxWidth * TEXT_WIDTH_PX}px` }}>
+                                                {match.teamB.name}
+                                            </div>              
                                             {teamBRoundsDiv}
                                         </div>
                                     </div>
