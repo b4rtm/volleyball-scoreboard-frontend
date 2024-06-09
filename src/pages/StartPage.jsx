@@ -7,6 +7,8 @@ import ManageTeams from '../components/ManageTeams';
 
 const StartPage = () => {
     const [teams, setTeams] = useState([]);
+    const [matches, setMatches] = useState([])
+
     const websocket = useWebSocket();
 
     useEffect(() => {
@@ -16,10 +18,18 @@ const StartPage = () => {
             setTeams(data);
         };
 
+        const handleGettingMatches = (message) => {
+            const data = JSON.parse(message.body);
+            setMatches(data);
+        };
+
         if (websocket) {
             websocket.onConnect = () => {
                 websocket.subscribe('/topic/teams', handleTeamsMessage);
                 websocket.publish({ destination: '/app/getTeams' });
+
+                websocket.subscribe('/topic/matches', handleGettingMatches);
+                websocket.publish({ destination: '/app/getMatches' });
             };
         }
 
@@ -34,10 +44,9 @@ const StartPage = () => {
         <div>
             <UserInfoNav />
             <h1 className="text-2xl font-bold text-center mb-4">Start Page</h1>
-            <AddMatch />
-            <MatchesList />
             <AddMatch teams={teams} websocket={websocket}/>
             <ManageTeams teams={teams} websocket={websocket} />
+            <MatchesList matches={matches} websocket={websocket}/>
         </div>
     );
 };
