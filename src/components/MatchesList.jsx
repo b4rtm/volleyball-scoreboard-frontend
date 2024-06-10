@@ -1,9 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { format } from 'date-fns';
+import { Link } from "react-router-dom";
 
 const MatchesList = ({ matches, websocket }) => {
     const TEXT_WIDTH_PX = 9
     const LONGEST_TEAM_NAME_PADDING = 3
+
+    const [visibleTables, setVisibleTables] = useState({});
 
     useEffect(() => {
         if (!websocket) {
@@ -39,6 +42,12 @@ const MatchesList = ({ matches, websocket }) => {
         window.location.reload()
     }
 
+    const toggleTableVisibility = (matchId) => {
+        setVisibleTables(prevState => ({
+            ...prevState,
+            [matchId]: !prevState[matchId]
+        }));
+    };
 
     return (
         <div className="space-y-6 flex flex-col justify-center items-center">
@@ -49,9 +58,18 @@ const MatchesList = ({ matches, websocket }) => {
                         const sets = JSON.parse(match.timeline);
                         return (
                             <div key={index} className="match-container flex flex-col items-center">
-                                <h2 className="match-status font-bold p-4">
-                                    {match.teamA.name + " vs " + match.teamB.name + " (" + match.status + ")"}
-                                </h2>
+                                <div className="flex">
+                                    <Link to={`/matches/${match.id}`}>
+                                    <h2 className="match-status font-bold p-4">
+                                        {match.teamA.name + " vs " + match.teamB.name + " (" + match.status + ")"}
+                                    </h2>
+                                    </Link>
+
+                                    <button className="bg-gray-500 text-white px-2 py-1 rounded mt-4 p-3 mb-4" onClick={() => toggleTableVisibility(match.id)}>
+                                        {visibleTables[match.id] ? "Ukryj tabelę" : "Pokaż tabelę"}
+                                    </button>
+                                </div>
+                                
                                 {sets.map((set, setIndex) => {
                                     const teamARoundsDiv = [];
                                     const teamARounds = [];
@@ -85,18 +103,19 @@ const MatchesList = ({ matches, websocket }) => {
                                             teamBRounds.push(round.point);
                                         }
                                     });
-
-                                    return (
+                                    
+                                    if (visibleTables[match.id]){
+                                        return (
                                         <div key={setIndex} className="mb-4 inline-block items-center bg-gray-200 p-4">
-                                            <h2 className="text-lg font-bold">Set {setIndex + 1}: {Math.max(...teamARounds)}-{Math.max(...teamBRounds)} (time: )</h2>
-                                            <div className="team-a-row mb-2">
-                                                <div className="inline-grid grid-flow-col auto-cols-max gap-1 mt-2">
-                                                    <div className="team-name" style={{ width: `${maxWidth * TEXT_WIDTH_PX}px` }}>
-                                                        {match.teamA.name}
-                                                    </div>
-                                                    {teamARoundsDiv}
+                                        <h2 className="text-lg font-bold">Set {setIndex + 1}: {Math.max(...teamARounds)}-{Math.max(...teamBRounds)} (time: )</h2>
+                                        <div className="team-a-row mb-2">
+                                            <div className="inline-grid grid-flow-col auto-cols-max gap-1 mt-2">
+                                                <div className="team-name" style={{ width: `${maxWidth * TEXT_WIDTH_PX}px` }}>
+                                                    {match.teamA.name}
                                                 </div>
+                                                {teamARoundsDiv}
                                             </div>
+                                        </div>
                                             <div className="team-b-row flex flex-row mb-2">
                                                 <div className="inline-grid grid-flow-col auto-cols-max gap-1 mt-2">
                                                     <div className="team-name" style={{ width: `${maxWidth * TEXT_WIDTH_PX}px` }}>
@@ -106,8 +125,9 @@ const MatchesList = ({ matches, websocket }) => {
                                                 </div>
                                             </div>
                                         </div>
-                                    );
-                                })}
+                                        )}
+                                    }
+                                )}
                                 <button className="bg-green-500 text-white px-2 py-1 rounded mt-4 p-3" onClick={() => copyMatchToClipboard(match)}>
                                     Kopiuj wynik do schowka
                                 </button>
