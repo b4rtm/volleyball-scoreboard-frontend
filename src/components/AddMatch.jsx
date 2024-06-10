@@ -25,6 +25,11 @@ const AddMatch = ({ teams, websocket }) => {
             return;
         }
 
+        if (teamA === "" || teamB == ""){
+            window.alert("Nie podano nazwy przynajmniej jednej z drużyn")
+            return
+        }
+
         const match = {
             teamA,
             teamB,
