@@ -32,6 +32,13 @@ const MatchesList = ({ matches, websocket }) => {
         });
     };
 
+    const deleteMatch = (match) => {
+        websocket.publish({
+            destination: `/app/deleteMatch/${match.id}`,
+        })
+        window.location.reload()
+    }
+
 
     return (
         <div className="space-y-6 flex flex-col justify-center items-center">
@@ -103,6 +110,9 @@ const MatchesList = ({ matches, websocket }) => {
                                 })}
                                 <button className="bg-green-500 text-white px-2 py-1 rounded mt-4 p-3" onClick={() => copyMatchToClipboard(match)}>
                                     Kopiuj wynik do schowka
+                                </button>
+                                <button className="bg-red-500 text-white px-2 py-1 rounded mt-4 p-3" onClick={() => deleteMatch(match)}>
+                                    Usuń mecz
                                 </button>
                             </div>
                         );
