@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { format } from 'date-fns';
 
 const MatchesList = ({ matches, websocket }) => {
     const TEXT_WIDTH_PX = 9
@@ -22,13 +23,12 @@ const MatchesList = ({ matches, websocket }) => {
         let matchDetails = ""
         matchDetails = addHeaderPaddingSpaces(longestTeamNameLength, matchDetails);
         matchDetails = addMatchHeader(matchDetails, sets);
-        matchDetails = addTeamLabel(matchDetails, longestTeamNameLength, match.teamA.name);
         matchDetails = assignPointsToTeams(sets, match, matchDetails, longestTeamNameLength);
         
         navigator.clipboard.writeText(matchDetails).then(() => {
-            alert('Match details copied to clipboard');
+            alert('Skopiowano dane o meczu do schowka');
         }, (err) => {
-            console.error('Failed to copy: ', err);
+            console.error('Nie udało się skopiować danych meczu do schowka: ', err);
         });
     };
 
@@ -121,17 +121,10 @@ function assignPointsToTeams(sets, match, matchDetails, longestTeamNameLength) {
     let teamAWonSets = 0;
     let teamBWonSets = 0;
 
+    matchDetails = addTeamLabel(matchDetails, longestTeamNameLength, match.teamA.name);
+
     sets.forEach(rounds => {
-        let teamASetPoints = rounds
-            .filter(round => round.teamId === match.teamA.id)
-            .map(round => round.point);
-
-        let teamBSetPoints = rounds
-            .filter(round => round.teamId === match.teamB.id)
-            .map(round => round.point);
-
-        teamAPoints.push(Math.max(...teamASetPoints));
-        teamBPoints.push(Math.max(...teamBSetPoints));
+        assignPointToTeamByRound(rounds, match, teamAPoints, teamBPoints);
 
         if (teamAPoints[teamAPoints.length - 1] > teamBPoints[teamBPoints.length - 1]) {
             teamAWonSets++;
@@ -140,25 +133,37 @@ function assignPointsToTeams(sets, match, matchDetails, longestTeamNameLength) {
         }
     });
 
-    teamAPoints.forEach(setPoints => {
-        if (setPoints < 10) {
-            matchDetails += " ";
-        }
-        matchDetails += setPoints + "  |  ";
-    });
-    matchDetails += "  " + teamAWonSets;
-    matchDetails += "\n";
-    matchDetails = addTeamLabel(matchDetails, longestTeamNameLength, match.teamB.name);
+    matchDetails = addTeamPointsInSets(teamAPoints, teamAWonSets, matchDetails)
+    matchDetails = addTeamLabel(matchDetails, longestTeamNameLength, match.teamB.name)
+    matchDetails = addTeamPointsInSets(teamBPoints, teamBWonSets, matchDetails)
 
-    teamBPoints.forEach(setPoints => {
-        if (setPoints < 10) {
-            matchDetails += " ";
-        }
-        matchDetails += setPoints + "  |  ";
-    });
-
-    matchDetails += "  " + teamBWonSets;
+    matchDetails += format(new Date(match.date), 'yyyy-MM-dd HH:mm')
     return matchDetails;
+}
+
+function addTeamPointsInSets(teamPoints, teamWonSets, matchDetails) {
+    teamPoints.forEach(setPoints => {
+        if (setPoints < 10) {
+            matchDetails += " ";
+        }
+        matchDetails += setPoints + "  |  ";
+    });
+    matchDetails += "  " + teamWonSets
+    matchDetails += "\n"
+    return matchDetails;
+}
+
+function assignPointToTeamByRound(rounds, match, teamAPoints, teamBPoints) {
+    let teamASetPoints = rounds
+        .filter(round => round.teamId === match.teamA.id)
+        .map(round => round.point);
+
+    let teamBSetPoints = rounds
+        .filter(round => round.teamId === match.teamB.id)
+        .map(round => round.point);
+
+    teamAPoints.push(Math.max(...teamASetPoints));
+    teamBPoints.push(Math.max(...teamBSetPoints));
 }
 
 function addTeamLabel(matchDetails, longestTeamName, teamName) {
