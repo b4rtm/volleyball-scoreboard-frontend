@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useWebSocket } from '../WebSocketContext';
 import { useParams } from 'react-router-dom';
 import TeamDetails from '../components/TeamDetails';
+import Result from '../components/Result';
 
 const MatchDetailsPage = () => {
     const [match, setMatch] = useState(null);
@@ -13,24 +14,29 @@ const MatchDetailsPage = () => {
         const handleMatchMessage = (message) => {
             const data = JSON.parse(message.body);
             console.log('Received match data1:', data);
+            const targetMatch =  data.find(match => match.id === parseInt(matchId));
+            console.log(targetMatch)
 
-            const parsedResultDetailed = JSON.parse(data.resultDetailed);
-            data.resultDetailed = parsedResultDetailed;
+            const parsedResultDetailed = JSON.parse(targetMatch.resultDetailed);
+            targetMatch.resultDetailed = parsedResultDetailed;
 
-            const parsedPlayersTeamA = JSON.parse(data.teamA.players).players;
-            data.teamA.players = parsedPlayersTeamA;
+            const parsedPlayersTeamA = JSON.parse(targetMatch.teamA.players).players;
+            targetMatch.teamA.players = parsedPlayersTeamA;
 
-            const parsedPlayersTeamB = JSON.parse(data.teamB.players).players;
-            data.teamB.players = parsedPlayersTeamB;
+            const parsedPlayersTeamB = JSON.parse(targetMatch.teamB.players).players;
+            targetMatch.teamB.players = parsedPlayersTeamB;
 
-            console.log('Received match data2:', data);
-            setMatch(data);
+            const parsedTimeline = JSON.parse(targetMatch.timeline);
+            targetMatch.timeline = parsedTimeline;
+
+            console.log('Received match data2:', targetMatch);
+            setMatch(targetMatch);
         };
 
         if (websocket) {
             websocket.onConnect = () => {
-                websocket.subscribe(`/topic/matches/${matchId}`, handleMatchMessage);
-                websocket.publish({ destination: `/app/getMatch/${matchId}` });
+                websocket.subscribe(`/topic/matches`, handleMatchMessage);
+                websocket.publish({ destination: `/app/getMatches` });
             };
         }
 
@@ -40,6 +46,18 @@ const MatchDetailsPage = () => {
             }
         };
     }, [websocket, matchId]);
+
+    useEffect(() =>{
+        if(websocket && match){
+
+            if(match.timeline.length % 2 === 0){
+                setIsSwitched(true);
+            }
+            else{
+                setIsSwitched(false);
+            }
+        }
+    }, [match, websocket])
 
     const renderMatchDetails = () => {
         if (!match) {
@@ -61,19 +79,24 @@ const MatchDetailsPage = () => {
                 <div className="mt-4 flex justify-between">
                     {isSwitched ? (
                         <>
-                            <TeamDetails team={match.teamB} bgColor="bg-green-100" />
-                            <TeamDetails team={match.teamA} bgColor="bg-blue-100" />
+                            <TeamDetails team={match.teamB} bgColor="bg-green-100"/>
+                            <Result match={match} teamA = {match.teamB} teamB = {match.teamA} websocket={websocket}/>
+                            <TeamDetails team={match.teamA} bgColor="bg-blue-100"/>
+                            
                         </>
                     ) : (
                         <>
-                            <TeamDetails team={match.teamA} bgColor="bg-blue-100" />
-                            <TeamDetails team={match.teamB} bgColor="bg-green-100" />
+                            <TeamDetails team={match.teamA} bgColor="bg-blue-100"/>
+                            <Result match={match} teamA = {match.teamA} teamB = {match.teamB} websocket={websocket}/>
+                            <TeamDetails team={match.teamB} bgColor="bg-green-100"/>
                         </>
                     )}
                 </div>
             </div>
         );
     };
+
+
 
     const renderSwitchSidesButton = () => {
         const switchSides = () => {
