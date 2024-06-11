@@ -94,12 +94,23 @@ const MatchesList = ({ matches, websocket }) => {
                     if (match.timeline !== null) {
                         let maxWidth = Math.max(match.teamA.name.length, match.teamB.name.length);
                         const sets = JSON.parse(match.timeline);
+                        const totalMatchTime = sets.reduce((total, set, setIndex) => {
+                            const setTimeKey = `${match.id}-${setIndex}`;
+                            const setTime = setTimes[setTimeKey];
+                            if (setTime) {
+                                total += setTime;
+                            }
+                            return total
+                        }, 0);
+
+                        const formattedTotalMatchTime = formatTime(totalMatchTime)
+
                         return (
                             <div key={index} className="match-container flex flex-col items-center">
                                 <div className="flex">
                                     <Link to={`/matches/${match.id}`}>
                                         <h2 className="match-status font-bold p-4">
-                                            {match.teamA.name + " vs " + match.teamB.name + " (" + match.status + ")"}
+                                            {match.teamA.name + " vs " + match.teamB.name + " " + formattedTotalMatchTime + " (" + match.status + ")"}
                                         </h2>
                                     </Link>
                                     <button className="bg-gray-500 text-white px-2 py-1 rounded mt-4 p-3 mb-4" onClick={() => toggleTableVisibility(match.id)}>
