@@ -7,6 +7,7 @@ const MatchesList = ({ matches, websocket }) => {
     const LONGEST_TEAM_NAME_PADDING = 3
 
     const [visibleTables, setVisibleTables] = useState({});
+    const [setTimes, setSetTimes] = useState({})
 
     useEffect(() => {
         if (!websocket) {
@@ -17,8 +18,38 @@ const MatchesList = ({ matches, websocket }) => {
         websocket.onConnect = () => {
             websocket.publish({ destination: '/app/getMatches' });
         };
-    
     }, [websocket]);
+
+    useEffect(() => {
+        const intervals = matches.reduce((acc, match) => {
+            const sets = JSON.parse(match.setsTimes);
+            sets.forEach((set, setIndex) => {
+                if (set.setEndTime === "") {
+                    const interval = setInterval(() => {
+                        const now = new Date();
+                        const setStartTime = new Date(set.setStartTime);
+                        const duration = now - setStartTime;
+                        setSetTimes(prevState => ({
+                            ...prevState,
+                            [`${match.id}-${setIndex}`]: duration
+                        }));
+                    }, 1000);
+                    acc.push(interval);
+                } else {
+                    const setStartTime = new Date(set.setStartTime);
+                    const setEndTime = new Date(set.setEndTime);
+                    const duration = setEndTime - setStartTime;
+                    setSetTimes(prevState => ({
+                        ...prevState,
+                        [`${match.id}-${setIndex}`]: duration
+                    }));
+                }
+            });
+            return acc;
+        }, []);
+
+        return () => intervals.forEach(clearInterval);
+    }, [matches]);
 
     const copyMatchToClipboard = (match) => {
         const sets = JSON.parse(match.timeline);
@@ -49,6 +80,13 @@ const MatchesList = ({ matches, websocket }) => {
         }));
     };
 
+    const formatTime = (milliseconds) => {
+        const totalSeconds = Math.floor(milliseconds / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    };
+
     return (
         <div className="space-y-6 flex flex-col justify-center items-center">
             {
@@ -60,11 +98,10 @@ const MatchesList = ({ matches, websocket }) => {
                             <div key={index} className="match-container flex flex-col items-center">
                                 <div className="flex">
                                     <Link to={`/matches/${match.id}`}>
-                                    <h2 className="match-status font-bold p-4">
-                                        {match.teamA.name + " vs " + match.teamB.name + " (" + match.status + ")"}
-                                    </h2>
+                                        <h2 className="match-status font-bold p-4">
+                                            {match.teamA.name + " vs " + match.teamB.name + " (" + match.status + ")"}
+                                        </h2>
                                     </Link>
-
                                     <button className="bg-gray-500 text-white px-2 py-1 rounded mt-4 p-3 mb-4" onClick={() => toggleTableVisibility(match.id)}>
                                         {visibleTables[match.id] ? "Ukryj tabelę" : "Pokaż tabelę"}
                                     </button>
@@ -103,31 +140,33 @@ const MatchesList = ({ matches, websocket }) => {
                                             teamBRounds.push(round.point);
                                         }
                                     });
+
+                                    let setDuration = setTimes[`${match.id}-${setIndex}`] ? formatTime(setTimes[`${match.id}-${setIndex}`]) : "00:00"
                                     
-                                    if (visibleTables[match.id]){
+                                    if (visibleTables[match.id]) {
                                         return (
-                                        <div key={setIndex} className="mb-4 inline-block items-center bg-gray-200 p-4">
-                                        <h2 className="text-lg font-bold">Set {setIndex + 1}: {Math.max(...teamARounds)}-{Math.max(...teamBRounds)} (time: )</h2>
-                                        <div className="team-a-row mb-2">
-                                            <div className="inline-grid grid-flow-col auto-cols-max gap-1 mt-2">
-                                                <div className="team-name" style={{ width: `${maxWidth * TEXT_WIDTH_PX}px` }}>
-                                                    {match.teamA.name}
-                                                </div>
-                                                {teamARoundsDiv}
-                                            </div>
-                                        </div>
-                                            <div className="team-b-row flex flex-row mb-2">
-                                                <div className="inline-grid grid-flow-col auto-cols-max gap-1 mt-2">
-                                                    <div className="team-name" style={{ width: `${maxWidth * TEXT_WIDTH_PX}px` }}>
-                                                        {match.teamB.name}
+                                            <div key={setIndex} className="mb-4 inline-block items-center bg-gray-200 p-4">
+                                                <h2 className="text-lg font-bold">Set {setIndex + 1}: {Math.max(...teamARounds)}-{Math.max(...teamBRounds)} (czas trwania: {setDuration})</h2>
+                                                <div className="team-a-row mb-2">
+                                                    <div className="inline-grid grid-flow-col auto-cols-max gap-1 mt-2">
+                                                        <div className="team-name" style={{ width: `${maxWidth * TEXT_WIDTH_PX}px` }}>
+                                                            {match.teamA.name}
+                                                        </div>
+                                                        {teamARoundsDiv}
                                                     </div>
-                                                    {teamBRoundsDiv}
+                                                </div>
+                                                <div className="team-b-row flex flex-row mb-2">
+                                                    <div className="inline-grid grid-flow-col auto-cols-max gap-1 mt-2">
+                                                        <div className="team-name" style={{ width: `${maxWidth * TEXT_WIDTH_PX}px` }}>
+                                                            {match.teamB.name}
+                                                        </div>
+                                                        {teamBRoundsDiv}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        )}
+                                        )
                                     }
-                                )}
+                                })}
                                 <button className="bg-green-500 text-white px-2 py-1 rounded mt-4 p-3" onClick={() => copyMatchToClipboard(match)}>
                                     Kopiuj wynik do schowka
                                 </button>
@@ -218,4 +257,3 @@ function addMatchHeader(matchDetails, sets) {
     matchDetails += "\n";
     return matchDetails;
 }
-
