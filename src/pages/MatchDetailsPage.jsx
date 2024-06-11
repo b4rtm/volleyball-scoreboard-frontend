@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useWebSocket } from '../WebSocketContext';
 import { useParams } from 'react-router-dom';
 import TeamDetails from '../components/TeamDetails';
+import Result from '../components/Result';
 
 const MatchDetailsPage = () => {
     const [match, setMatch] = useState(null);
@@ -23,6 +24,9 @@ const MatchDetailsPage = () => {
             const parsedPlayersTeamB = JSON.parse(data.teamB.players).players;
             data.teamB.players = parsedPlayersTeamB;
 
+            const parsedTimeline = JSON.parse(data.timeline);
+            data.timeline = parsedTimeline;
+
             console.log('Received match data2:', data);
             setMatch(data);
         };
@@ -43,8 +47,8 @@ const MatchDetailsPage = () => {
 
     useEffect(() =>{
         if(websocket && match){
-            const sets = JSON.parse(match.timeline);
-            if(sets.length % 2 === 0){
+
+            if(match.timeline.length % 2 === 0){
                 setIsSwitched(true);
             }
             else{
@@ -73,19 +77,23 @@ const MatchDetailsPage = () => {
                 <div className="mt-4 flex justify-between">
                     {isSwitched ? (
                         <>
-                            <TeamDetails team={match.teamB} bgColor="bg-green-100" />
-                            <TeamDetails team={match.teamA} bgColor="bg-blue-100" />
+                            <TeamDetails team={match.teamB} bgColor="bg-green-100"/>
+                            <Result match={match} />
+                            <TeamDetails team={match.teamA} bgColor="bg-blue-100"/>
+                            
                         </>
                     ) : (
                         <>
-                            <TeamDetails team={match.teamA} bgColor="bg-blue-100" />
-                            <TeamDetails team={match.teamB} bgColor="bg-green-100" />
+                            <TeamDetails team={match.teamA} bgColor="bg-blue-100"/>
+                            <TeamDetails team={match.teamB} bgColor="bg-green-100"/>
                         </>
                     )}
                 </div>
             </div>
         );
     };
+
+
 
     const renderSwitchSidesButton = () => {
         const switchSides = () => {
