@@ -9,25 +9,52 @@ const Result = ({match, teamA, teamB, websocket}) => {
         return 0;
     };
 
-    const addPoint = (team) => {
+    const calculateTimeouts = (team) => {
+        const lastSet = match.timeline[match.timeline.length-1];
+        const timeouts = lastSet.filter(score => score.teamId !== team.id && score.opponentBreak === 1);
+        return timeouts.length;
+    };
+
+    const updatePoint = (team, points) => {
 
         const payload = {
             teamId: team.id,
-            point: calculatePoints(team) + 1,
+            point: points,
             opponentBreak: 0
         };
-        console.log(payload);
         websocket.publish({
             destination: `/app/updateScore/${match.id}`,
             body: JSON.stringify(payload),
         });
     }
 
+    const takeTimeout = (team) => {
+
+        websocket.publish({
+            destination: `/app/timeout/${match.id}`,
+            body: JSON.stringify(team.id),
+        });
+    }
+
     return (
         <div className="flex items-center justify-between">
-            <p className="text-black text-7xl font-bold bg-white-800 p-4 mr-4 rounded-lg shadow-md" onClick={() => addPoint(teamA)}>{calculatePoints(teamA)}</p>
+
+            <div className="flex flex-col justify-center">
+                <button className="text-white text-2l font-bold bg-blue-500 p-4 mr-4 rounded-lg shadow-md" onClick={() => takeTimeout(teamA)}>T</button>
+                <p className="text-black text-1l bg-white-800 p-4 mr-4">{calculateTimeouts(teamA)}/2</p>
+            </div>
+
+            <button className="text-black text-2l font-bold bg-white-800 p-4 mr-4 rounded-lg shadow-md" onClick={() => updatePoint(teamB, calculatePoints(teamA)-1)}>-1</button>
+            <button className="text-black text-7xl font-bold bg-white-800 p-4 mr-4 rounded-lg shadow-md" onClick={() => updatePoint(teamA, calculatePoints(teamA)+1)}>{calculatePoints(teamA)}</button>
             <p className="text-5xl">:</p>
-            <p className="text-black text-7xl font-bold bg-white-800 p-4 ml-4 rounded-lg shadow-md" onClick={() => addPoint(teamB)}>{calculatePoints(teamB)}</p>
+            <button className="text-black text-7xl font-bold bg-white-800 p-4 ml-4 rounded-lg shadow-md" onClick={() => updatePoint(teamB, calculatePoints(teamB)+1)}>{calculatePoints(teamB)}</button>
+            <button className="text-black text-2l font-bold bg-white-800 p-4 ml-4 rounded-lg shadow-md" onClick={() => updatePoint(teamB, calculatePoints(teamB)-1)}>-1</button>
+
+            <div className="flex flex-col justify-center">
+                <button className="text-white text-2l font-bold bg-blue-500 p-4 ml-4 rounded-lg shadow-md" onClick={() => takeTimeout(teamB)}>T</button>
+                <p className="text-black text-1l bg-white-800 p-4 ml-4">{calculateTimeouts(teamB)}/2</p>
+            </div>
+
         </div>
     );
 
