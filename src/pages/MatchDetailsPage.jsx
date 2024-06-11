@@ -41,6 +41,18 @@ const MatchDetailsPage = () => {
         };
     }, [websocket, matchId]);
 
+    useEffect(() =>{
+        if(websocket && match){
+            const sets = JSON.parse(match.timeline);
+            if(sets.length % 2 === 0){
+                setIsSwitched(true);
+            }
+            else{
+                setIsSwitched(false);
+            }
+        }
+    }, [match, websocket])
+
     const renderMatchDetails = () => {
         if (!match) {
             return <p className="text-center mt-4">Loading...</p>;
