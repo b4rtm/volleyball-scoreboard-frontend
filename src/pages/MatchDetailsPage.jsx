@@ -14,27 +14,29 @@ const MatchDetailsPage = () => {
         const handleMatchMessage = (message) => {
             const data = JSON.parse(message.body);
             console.log('Received match data1:', data);
+            const targetMatch =  data.find(match => match.id === parseInt(matchId));
+            console.log(targetMatch)
 
-            const parsedResultDetailed = JSON.parse(data.resultDetailed);
-            data.resultDetailed = parsedResultDetailed;
+            const parsedResultDetailed = JSON.parse(targetMatch.resultDetailed);
+            targetMatch.resultDetailed = parsedResultDetailed;
 
-            const parsedPlayersTeamA = JSON.parse(data.teamA.players).players;
-            data.teamA.players = parsedPlayersTeamA;
+            const parsedPlayersTeamA = JSON.parse(targetMatch.teamA.players).players;
+            targetMatch.teamA.players = parsedPlayersTeamA;
 
-            const parsedPlayersTeamB = JSON.parse(data.teamB.players).players;
-            data.teamB.players = parsedPlayersTeamB;
+            const parsedPlayersTeamB = JSON.parse(targetMatch.teamB.players).players;
+            targetMatch.teamB.players = parsedPlayersTeamB;
 
-            const parsedTimeline = JSON.parse(data.timeline);
-            data.timeline = parsedTimeline;
+            const parsedTimeline = JSON.parse(targetMatch.timeline);
+            targetMatch.timeline = parsedTimeline;
 
-            console.log('Received match data2:', data);
-            setMatch(data);
+            console.log('Received match data2:', targetMatch);
+            setMatch(targetMatch);
         };
 
         if (websocket) {
             websocket.onConnect = () => {
-                websocket.subscribe(`/topic/matches/${matchId}`, handleMatchMessage);
-                websocket.publish({ destination: `/app/getMatch/${matchId}` });
+                websocket.subscribe(`/topic/matches`, handleMatchMessage);
+                websocket.publish({ destination: `/app/getMatches` });
             };
         }
 
@@ -78,13 +80,14 @@ const MatchDetailsPage = () => {
                     {isSwitched ? (
                         <>
                             <TeamDetails team={match.teamB} bgColor="bg-green-100"/>
-                            <Result match={match} />
+                            <Result match={match} teamA = {match.teamB} teamB = {match.teamA} websocket={websocket}/>
                             <TeamDetails team={match.teamA} bgColor="bg-blue-100"/>
                             
                         </>
                     ) : (
                         <>
                             <TeamDetails team={match.teamA} bgColor="bg-blue-100"/>
+                            <Result match={match} teamA = {match.teamA} teamB = {match.teamB} websocket={websocket}/>
                             <TeamDetails team={match.teamB} bgColor="bg-green-100"/>
                         </>
                     )}
