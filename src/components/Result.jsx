@@ -9,11 +9,11 @@ const Result = ({match, teamA, teamB, websocket}) => {
         return 0;
     };
 
-    const addPoint = (team) => {
+    const updatePoint = (team, points) => {
 
         const payload = {
             teamId: team.id,
-            point: calculatePoints(team) + 1,
+            point: points,
             opponentBreak: 0
         };
         console.log(payload);
@@ -25,9 +25,12 @@ const Result = ({match, teamA, teamB, websocket}) => {
 
     return (
         <div className="flex items-center justify-between">
-            <p className="text-black text-7xl font-bold bg-white-800 p-4 mr-4 rounded-lg shadow-md" onClick={() => addPoint(teamA)}>{calculatePoints(teamA)}</p>
+            <button className="text-black text-2l font-bold bg-white-800 p-4 mr-4 rounded-lg shadow-md" onClick={() => updatePoint(teamB, calculatePoints(teamA)-1)}>-1</button>
+            <button className="text-black text-7xl font-bold bg-white-800 p-4 mr-4 rounded-lg shadow-md" onClick={() => updatePoint(teamA, calculatePoints(teamA)+1)}>{calculatePoints(teamA)}</button>
             <p className="text-5xl">:</p>
-            <p className="text-black text-7xl font-bold bg-white-800 p-4 ml-4 rounded-lg shadow-md" onClick={() => addPoint(teamB)}>{calculatePoints(teamB)}</p>
+            <button className="text-black text-7xl font-bold bg-white-800 p-4 ml-4 rounded-lg shadow-md" onClick={() => updatePoint(teamB, calculatePoints(teamB)+1)}>{calculatePoints(teamB)}</button>
+            <button className="text-black text-2l font-bold bg-white-800 p-4 ml-4 rounded-lg shadow-md" onClick={() => updatePoint(teamB, calculatePoints(teamB)-1)}>-1</button>
+
         </div>
     );
 
