@@ -100,7 +100,9 @@ const MatchDetailsPage = () => {
 
     const renderSwitchSidesButton = () => {
         const switchSides = () => {
-            setIsSwitched(!isSwitched);
+            if(match.status !== "FINISHED"){
+                setIsSwitched(!isSwitched);
+            }
         };
 
         return (
