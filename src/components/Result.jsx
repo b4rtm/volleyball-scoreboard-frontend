@@ -36,25 +36,55 @@ const Result = ({match, teamA, teamB, websocket}) => {
         });
     }
 
+    const endSet = () => {
+
+        websocket.publish({
+            destination: `/app/endSet/${match.id}`
+        });
+    }
+
+    const isEndSet = () => {
+        const pointToEndSet = match.pointsToWinSet;
+        const teamAPoints = calculatePoints(match.teamA);
+        const teamBPoints = calculatePoints(match.teamB);
+
+        if(teamAPoints >= pointToEndSet && teamAPoints > teamBPoints+1)
+            return true;
+        if(teamBPoints >= pointToEndSet && teamBPoints > teamAPoints+1)
+            return true;
+        return false;
+    }
+
+    const isEndMatch = () => {
+        if(isEndSet() && match.timeline.length === match.setsToWin)
+            return true;
+        return false;
+    }
+
     return (
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col items-center">
+            <div className="mb-4 p-4">
+            {isEndSet() && (<button className="p-4" onClick={() => endSet()}>End set</button>)}
+            {isEndMatch() && (<button className="p-4">End match</button>)}
 
-            <div className="flex flex-col justify-center">
-                <button className="text-white text-2l font-bold bg-blue-500 p-4 mr-4 rounded-lg shadow-md" onClick={() => takeTimeout(teamA)}>T</button>
-                <p className="text-black text-1l bg-white-800 p-4 mr-4">{calculateTimeouts(teamA)}/2</p>
             </div>
+            <div className="flex items-center justify-between">
+                <div className="flex flex-col justify-center">
+                    <button className="text-white text-2l font-bold bg-blue-500 p-4 mr-4 rounded-lg shadow-md" onClick={() => takeTimeout(teamA)}>T</button>
+                    <p className="text-black text-1l bg-white-800 p-4 mr-4">{calculateTimeouts(teamA)}/2</p>
+                </div>
 
-            <button className="text-black text-2l font-bold bg-white-800 p-4 mr-4 rounded-lg shadow-md" onClick={() => updatePoint(teamB, calculatePoints(teamA)-1)}>-1</button>
-            <button className="text-black text-7xl font-bold bg-white-800 p-4 mr-4 rounded-lg shadow-md" onClick={() => updatePoint(teamA, calculatePoints(teamA)+1)}>{calculatePoints(teamA)}</button>
-            <p className="text-5xl">:</p>
-            <button className="text-black text-7xl font-bold bg-white-800 p-4 ml-4 rounded-lg shadow-md" onClick={() => updatePoint(teamB, calculatePoints(teamB)+1)}>{calculatePoints(teamB)}</button>
-            <button className="text-black text-2l font-bold bg-white-800 p-4 ml-4 rounded-lg shadow-md" onClick={() => updatePoint(teamB, calculatePoints(teamB)-1)}>-1</button>
+                <button className="text-black text-2l font-bold bg-white-800 p-4 mr-4 rounded-lg shadow-md" onClick={() => updatePoint(teamB, calculatePoints(teamA)-1)}>-1</button>
+                <button className="text-black text-7xl font-bold bg-white-800 p-4 mr-4 rounded-lg shadow-md" onClick={() => updatePoint(teamA, calculatePoints(teamA)+1)}>{calculatePoints(teamA)}</button>
+                <p className="text-5xl">:</p>
+                <button className="text-black text-7xl font-bold bg-white-800 p-4 ml-4 rounded-lg shadow-md" onClick={() => updatePoint(teamB, calculatePoints(teamB)+1)}>{calculatePoints(teamB)}</button>
+                <button className="text-black text-2l font-bold bg-white-800 p-4 ml-4 rounded-lg shadow-md" onClick={() => updatePoint(teamB, calculatePoints(teamB)-1)}>-1</button>
 
-            <div className="flex flex-col justify-center">
-                <button className="text-white text-2l font-bold bg-blue-500 p-4 ml-4 rounded-lg shadow-md" onClick={() => takeTimeout(teamB)}>T</button>
-                <p className="text-black text-1l bg-white-800 p-4 ml-4">{calculateTimeouts(teamB)}/2</p>
+                <div className="flex flex-col justify-center">
+                    <button className="text-white text-2l font-bold bg-blue-500 p-4 ml-4 rounded-lg shadow-md" onClick={() => takeTimeout(teamB)}>T</button>
+                    <p className="text-black text-1l bg-white-800 p-4 ml-4">{calculateTimeouts(teamB)}/2</p>
+                </div>
             </div>
-
         </div>
     );
 
