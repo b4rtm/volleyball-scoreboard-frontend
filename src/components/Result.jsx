@@ -16,23 +16,26 @@ const Result = ({match, teamA, teamB, websocket}) => {
     };
 
     const updatePoint = (team, points) => {
-
-        const payload = {
-            teamId: team.id,
-            point: points,
-            opponentBreak: 0
-        };
-        websocket.publish({
-            destination: `/app/updateScore/${match.id}`,
-            body: JSON.stringify(payload),
-        });
+        if(match.status !== "FINISHED"){
+            const payload = {
+                teamId: team.id,
+                point: points,
+                opponentBreak: 0
+            };
+            websocket.publish({
+                destination: `/app/updateScore/${match.id}`,
+                body: JSON.stringify(payload),
+            });
+        }
     }
 
     const takeTimeout = (team) => {
-        websocket.publish({
-            destination: `/app/timeout/${match.id}`,
-            body: JSON.stringify(team.id),
-        });
+        if(match.status !== "FINISHED"){
+            websocket.publish({
+                destination: `/app/timeout/${match.id}`,
+                body: JSON.stringify(team.id),
+            });
+        }
     }
 
     const endSet = () => {
