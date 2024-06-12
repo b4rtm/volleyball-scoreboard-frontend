@@ -29,7 +29,6 @@ const Result = ({match, teamA, teamB, websocket}) => {
     }
 
     const takeTimeout = (team) => {
-
         websocket.publish({
             destination: `/app/timeout/${match.id}`,
             body: JSON.stringify(team.id),
@@ -37,9 +36,14 @@ const Result = ({match, teamA, teamB, websocket}) => {
     }
 
     const endSet = () => {
-
         websocket.publish({
             destination: `/app/endSet/${match.id}`
+        });
+    }
+
+    const endMatch = () => {
+        websocket.publish({
+            destination: `/app/endMatch/${match.id}`
         });
     }
 
@@ -55,17 +59,30 @@ const Result = ({match, teamA, teamB, websocket}) => {
         return false;
     }
 
+
     const isEndMatch = () => {
-        if(isEndSet() && match.timeline.length === match.setsToWin)
+        const pointToEndSet = match.pointsToWinSet;
+        const teamAPoints = calculatePoints(match.teamA);
+        const teamBPoints = calculatePoints(match.teamB);
+
+        const parts = match.result.split(':');
+        const teamAScore = parseInt(parts[0].trim(), 10);
+        const teamBScore = parseInt(parts[1].trim(), 10);
+
+        if(teamAPoints >= pointToEndSet && teamAPoints > teamBPoints+1 && teamAScore + 1 === match.setsToWin)
             return true;
+
+        if(teamBPoints >= pointToEndSet && teamBPoints > teamAPoints+1 && teamBScore + 1 === match.setsToWin)
+            return true;
+
         return false;
     }
 
     return (
         <div className="flex flex-col items-center">
             <div className="mb-4 p-4">
-            {isEndSet() && (<button className="p-4" onClick={() => endSet()}>End set</button>)}
-            {isEndMatch() && (<button className="p-4">End match</button>)}
+            {isEndSet() && !isEndMatch() && match.status !== "FINISHED" && (<button className="p-4" onClick={() => endSet()}>End set</button>)}
+            {isEndMatch() && (<button className="p-4" onClick={() => endMatch()}>End match</button>)}
 
             </div>
             <div className="flex items-center justify-between">
