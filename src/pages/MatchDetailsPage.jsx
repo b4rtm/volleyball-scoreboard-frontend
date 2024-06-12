@@ -49,8 +49,7 @@ const MatchDetailsPage = () => {
 
     useEffect(() =>{
         if(websocket && match){
-
-            if(match.timeline.length % 2 === 0){
+            if(match.timeline.length % 2 !== 0){
                 setIsSwitched(true);
             }
             else{

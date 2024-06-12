@@ -1,7 +1,10 @@
 const Result = ({match, teamA, teamB, websocket}) => {
 
     const calculatePoints = (team) => {
+        if(match.timeline.length === 0)
+            return 0;
         const lastSet = match.timeline[match.timeline.length-1];
+
         for(let i = lastSet.length -1; i >= 0; i--){
             if(lastSet[i].teamId === team.id)
                 return lastSet[i].point;
@@ -10,6 +13,8 @@ const Result = ({match, teamA, teamB, websocket}) => {
     };
 
     const calculateTimeouts = (team) => {
+        if(match.timeline.length === 0)
+            return 0;
         const lastSet = match.timeline[match.timeline.length-1];
         const timeouts = lastSet.filter(score => score.teamId !== team.id && score.opponentBreak === 1);
         return timeouts.length;
@@ -64,7 +69,9 @@ const Result = ({match, teamA, teamB, websocket}) => {
 
 
     const isEndMatch = () => {
-        const pointToEndSet = match.pointsToWinSet;
+        let pointToEndSet;
+        match.isTieBreak ? pointToEndSet = match.pointsToWinTieBreak : pointToEndSet = match.pointsToWinSet;
+        
         const teamAPoints = calculatePoints(match.teamA);
         const teamBPoints = calculatePoints(match.teamB);
 
