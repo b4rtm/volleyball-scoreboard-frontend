@@ -4,7 +4,7 @@ import moment from 'moment';
 const AddMatch = ({ teams, websocket }) => {
     const [teamA, setTeamA] = useState('');
     const [teamB, setTeamB] = useState('');
-    const [date, setDate] = useState(moment().format('YYYY-MM-DDTHH:mm'));
+    const [date, setDate] = useState(moment().format('YYYY-MM-DDTHH:mm:ss'));
     const [status, setStatus] = useState('IN_PROGRESS');
     const [setsToWin, setSetsToWin] = useState(3);
     const [pointsToWinSet, setPointsToWinSet] = useState(25);
@@ -25,10 +25,20 @@ const AddMatch = ({ teams, websocket }) => {
             return;
         }
 
-        if (teamA === "" || teamB == ""){
+        if (teamA === "" || teamB === ""){
             window.alert("Nie podano nazwy przynajmniej jednej z drużyn")
             return
         }
+
+        let setsTimes = [
+            {
+                "setStartTime": date,
+                "setEndTime": ""
+            },
+        ]
+
+        setsTimes = JSON.stringify(setsTimes)
+        console.log(setsTimes)
 
         const match = {
             teamA,
@@ -38,7 +48,8 @@ const AddMatch = ({ teams, websocket }) => {
             setsToWin,
             pointsToWinSet,
             isTieBreak,
-            pointsToWinTieBreak
+            pointsToWinTieBreak,
+            setsTimes
         };
 
         websocket.publish({
