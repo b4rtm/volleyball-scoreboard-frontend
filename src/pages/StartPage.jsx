@@ -4,7 +4,6 @@ import UserInfoNav from '../components/UserInfoNav';
 import MatchesList from '../components/MatchesList';
 import { useWebSocket } from '../WebSocketContext';
 import ManageTeams from '../components/ManageTeams';
-import MainTimer from '../components/MainTimer';
 
 const StartPage = () => {
     const [teams, setTeams] = useState([]);
@@ -44,7 +43,6 @@ const StartPage = () => {
     return (
         <div>
             <UserInfoNav />
-            <MainTimer/>
             <h1 className="text-2xl font-bold text-center mb-4">Start Page</h1>
             <AddMatch teams={teams} websocket={websocket}/>
             <ManageTeams teams={teams} websocket={websocket} />
