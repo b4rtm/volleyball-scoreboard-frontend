@@ -43,9 +43,10 @@ const StartPage = () => {
     return (
         <div>
             <UserInfoNav />
-            <h1 className="text-2xl font-bold text-center mb-4">Start Page</h1>
-            <AddMatch teams={teams} websocket={websocket}/>
-            <ManageTeams teams={teams} websocket={websocket} />
+            <div className='flex mb-20'>
+                <AddMatch teams={teams} websocket={websocket}/>
+                <ManageTeams teams={teams} websocket={websocket} />
+            </div>
             <MatchesList matches={matches} websocket={websocket}/>
         </div>
     );

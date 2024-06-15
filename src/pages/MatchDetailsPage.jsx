@@ -18,8 +18,8 @@ const MatchDetailsPage = () => {
         const handleMatchMessage = (message) => {
             const data = JSON.parse(message.body);
             console.log('Received match data1:', data);
-            const targetMatch =  data.find(match => match.id === parseInt(matchId));
-            console.log(targetMatch)
+            const targetMatch = data.find(match => match.id === parseInt(matchId));
+            console.log(targetMatch);
 
             const parsedResultDetailed = JSON.parse(targetMatch.resultDetailed);
             targetMatch.resultDetailed = parsedResultDetailed;
@@ -51,16 +51,24 @@ const MatchDetailsPage = () => {
         };
     }, [websocket, matchId]);
 
-    useEffect(() =>{
-        if(websocket && match){
-            if(match.timeline.length % 2 !== 0){
-                setIsSwitched(true);
-            }
-            else{
-                setIsSwitched(false);
-            }
+    const switchSides = () => {
+        if (match && match.status !== "FINISHED") {
+            const newTeamA = match.teamB;
+            const newTeamB = match.teamA;
+            const newResult = match.result.split(':').reverse().join(':');
+            const newResultDetailed = {
+                resD: match.resultDetailed.resD.map(setResult => setResult.split(':').reverse().join(':'))
+            };
+            setMatch({
+                ...match,
+                result: newResult,
+                resultDetailed: newResultDetailed,
+                teamA: newTeamA,
+                teamB: newTeamB
+            });
+            setIsSwitched(!isSwitched);
         }
-    }, [match, websocket])
+    };
 
     useEffect(() => {
         const handleCurrentSetNumberRes = (message) => {
@@ -149,64 +157,47 @@ const MatchDetailsPage = () => {
 
         let setMatchDuration = wholeMatchTime ? formatTime(wholeMatchTime) : "00:00"
 
+        // Ustalenie kolorów drużyn na podstawie isSwitched
+        const teamAColor = isSwitched ? "bg-green-100" : "bg-blue-100";
+        const teamBColor = isSwitched ? "bg-blue-100" : "bg-green-100";
+
         return (
             <div className="bg-white p-8 rounded-lg shadow-lg">
+
                 <MainTimer/>
-                <h1 className="text-2xl font-bold mb-4">Match Details</h1>
                 <h2>Current set time: {setDuration}</h2>
                 <h2>Match time: {setMatchDuration}</h2>
-                <p><span className="font-semibold">Status:</span> {match.status}</p>
-                <p><span className="font-semibold">Result:</span> {match.result}</p>
-                <p className="mt-4 font-semibold">Result Detailed:</p>
-                <ul className="list-decimal list-inside ml-4">
+                <h1 className="text-2xl font-bold mb-4 text-center">Match Details</h1>
+                <p className='text-center'><span className="font-semibold">Status:</span> {match.status}</p>
+                <p className='text-center text-6xl font-bold'>{match.result}</p>
+                <p className="mt-4 font-semibold text-center">Result Detailed</p>
+                <ul className="list-decimal list-inside ml-4 text-center">
                     {match.resultDetailed.resD.map((setResult, index) => (
                         <li key={index}>{setResult}</li>
                     ))}
                 </ul>
-                
+
                 <div className="mt-4 flex justify-between">
-                    {isSwitched ? (
-                        <>
-                            <TeamDetails team={match.teamB} bgColor="bg-green-100"/>
-                            <Result match={match} teamA = {match.teamB} teamB = {match.teamA} websocket={websocket}/>
-                            <TeamDetails team={match.teamA} bgColor="bg-blue-100"/>
-                            
-                        </>
-                    ) : (
-                        <>
-                            <TeamDetails team={match.teamA} bgColor="bg-blue-100"/>
-                            <Result match={match} teamA = {match.teamA} teamB = {match.teamB} websocket={websocket}/>
-                            <TeamDetails team={match.teamB} bgColor="bg-green-100"/>
-                        </>
-                    )}
+                    <TeamDetails team={match.teamA} bgColor={teamAColor} />
+                    <Result match={match} teamA={match.teamA} teamB={match.teamB} websocket={websocket} />
+                    <TeamDetails team={match.teamB} bgColor={teamBColor} />
+                </div>
+
+                <div className='flex justify-center'>
+                    <button 
+                        onClick={switchSides}
+                        className="mt-8 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none"
+                    >
+                        Switch Sides
+                    </button>
                 </div>
             </div>
         );
     };
 
-
-
-    const renderSwitchSidesButton = () => {
-        const switchSides = () => {
-            if(match.status !== "FINISHED"){
-                setIsSwitched(!isSwitched);
-            }
-        };
-
-        return (
-            <button 
-                onClick={switchSides}
-                className="mt-8 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none"
-            >
-                Switch Sides
-            </button>
-        );
-    };
-
     return (
-        <div className="max-w-4xl mx-auto mt-8">
+        <div className="mx-auto mt-8">
             {renderMatchDetails()}
-            {renderSwitchSidesButton()}
         </div>
     );
 };

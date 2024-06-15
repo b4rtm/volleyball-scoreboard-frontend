@@ -57,7 +57,7 @@ const Login = () => {
   return (
     <GoogleOAuthProvider clientId={process.env.REACT_APP_CLIENT_ID}>
       <div className="container mx-auto max-w-sm p-4">
-        <h1 className="text-2xl font-bold text-center mb-4">Logowanie</h1>
+        <h1 className="text-2xl font-bold text-center mb-4">Sign in</h1>
 
         <div className="flex justify-center mt-4">
           <GoogleLogin

@@ -33,7 +33,7 @@ const UserInfoNav = () => {
                         onClick={handleLogout}
                         className="bg-red-500 text-white px-2 py-1 rounded mt-4"
                     >
-                        Wyloguj się
+                        Sign out
                     </button>
                 </div>
             </div>
