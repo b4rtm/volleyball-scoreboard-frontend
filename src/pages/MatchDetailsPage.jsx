@@ -65,11 +65,11 @@ const MatchDetailsPage = () => {
 
         return (
             <div className="bg-white p-8 rounded-lg shadow-lg">
-                <h1 className="text-2xl font-bold mb-4">Match Details</h1>
-                <p><span className="font-semibold">Status:</span> {match.status}</p>
-                <p><span className="font-semibold">Result:</span> {match.result}</p>
-                <p className="mt-4 font-semibold">Result Detailed:</p>
-                <ul className="list-decimal list-inside ml-4">
+                <h1 className="text-2xl font-bold mb-4 text-center">Match Details</h1>
+                <p className='text-center'><span className="font-semibold">Status:</span> {match.status}</p>
+                <p className='text-center text-6xl font-bold'>{match.result}</p>
+                <p className="mt-4 font-semibold text-center">Result Detailed</p>
+                <ul className="list-decimal list-inside ml-4 text-center">
                     {match.resultDetailed.resD.map((setResult, index) => (
                         <li key={index}>{setResult}</li>
                     ))}
@@ -90,7 +90,9 @@ const MatchDetailsPage = () => {
                             <TeamDetails team={match.teamB} bgColor="bg-green-100"/>
                         </>
                     )}
+                     
                 </div>
+                {renderSwitchSidesButton()}
             </div>
         );
     };
@@ -105,19 +107,21 @@ const MatchDetailsPage = () => {
         };
 
         return (
-            <button 
-                onClick={switchSides}
-                className="mt-8 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none"
-            >
-                Switch Sides
-            </button>
+            <div className='flex justify-center'>
+                <button 
+                    onClick={switchSides}
+                    className="mt-8 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none"
+                >
+                    Switch Sides
+                </button>
+            </div>
+            
         );
     };
 
     return (
-        <div className="max-w-4xl mx-auto mt-8">
+        <div className="max-w-7xl mx-auto mt-8">
             {renderMatchDetails()}
-            {renderSwitchSidesButton()}
         </div>
     );
 };
