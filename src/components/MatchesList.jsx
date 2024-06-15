@@ -88,7 +88,7 @@ const MatchesList = ({ matches, websocket }) => {
     };
 
     return (
-        <div className="space-y-6 flex flex-col justify-center items-center">
+        <div className="space-y-6 flex flex-col justify-center items-center mb-5">
             {
                 matches.map((match, index) => {
                     if (match.timeline !== null) {
@@ -106,7 +106,7 @@ const MatchesList = ({ matches, websocket }) => {
                         const formattedTotalMatchTime = formatTime(totalMatchTime)
 
                         return (
-                            <div key={index} className="match-container flex flex-col items-center">
+                            <div key={index} className="match-container flex flex-col items-center shadow-lg p-5">
                                 <div className="flex">
                                     <Link to={`/matches/${match.id}`}>
                                         <h2 className="match-status font-bold p-4">
