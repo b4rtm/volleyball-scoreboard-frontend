@@ -89,10 +89,10 @@ const Result = ({match, teamA, teamB, websocket}) => {
     }
 
     return (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center justify-center">
             <div className="mb-4 p-4">
-            {isEndSet() && !isEndMatch() && match.status !== "FINISHED" && (<button className="p-4" onClick={() => endSet()}>End set</button>)}
-            {isEndMatch() && (<button className="p-4" onClick={() => endMatch()}>End match</button>)}
+            {isEndSet() && !isEndMatch() && match.status !== "FINISHED" && (<button className="mt-8 px-4 py-2 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none" onClick={() => endSet()}>End set</button>)}
+            {isEndMatch() && (<button className="mt-8 px-4 py-2 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none" onClick={() => endMatch()}>End match</button>)}
 
             </div>
             <div className="flex items-center justify-between">
