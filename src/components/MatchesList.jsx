@@ -114,7 +114,7 @@ const MatchesList = ({ matches, websocket }) => {
                                         </h2>
                                     </Link>
                                     <button className="bg-gray-500 text-white px-2 py-1 rounded mt-4 p-3 mb-4" onClick={() => toggleTableVisibility(match.id)}>
-                                        {visibleTables[match.id] ? "Ukryj tabelę" : "Pokaż tabelę"}
+                                        {visibleTables[match.id] ? "Hide table" : "Show table"}
                                     </button>
                                 </div>
                                 
@@ -157,7 +157,7 @@ const MatchesList = ({ matches, websocket }) => {
                                     if (visibleTables[match.id]) {
                                         return (
                                             <div key={setIndex} className="mb-4 inline-block items-center bg-gray-200 p-4">
-                                                <h2 className="text-lg font-bold">Set {setIndex + 1}: {Math.max(...teamARounds)}-{Math.max(...teamBRounds)} (czas trwania: {setDuration})</h2>
+                                                <h2 className="text-lg font-bold">Set {setIndex + 1}: {Math.max(...teamARounds)}-{Math.max(...teamBRounds)} (time: {setDuration})</h2>
                                                 <div className="team-a-row mb-2">
                                                     <div className="inline-grid grid-flow-col auto-cols-max gap-1 mt-2">
                                                         <div className="team-name" style={{ width: `${maxWidth * TEXT_WIDTH_PX}px` }}>
@@ -179,10 +179,10 @@ const MatchesList = ({ matches, websocket }) => {
                                     }
                                 })}
                                 <button className="bg-green-500 text-white px-2 py-1 rounded mt-4 p-3" onClick={() => copyMatchToClipboard(match)}>
-                                    Kopiuj wynik do schowka
+                                    Copy result to clipboard
                                 </button>
                                 <button className="bg-red-500 text-white px-2 py-1 rounded mt-4 p-3" onClick={() => deleteMatch(match)}>
-                                    Usuń mecz
+                                    Delete match
                                 </button>
                             </div>
                         );
