@@ -85,7 +85,8 @@ const MatchDetailsPage = () => {
     }, [match, matchId, currentSetNumber]);
 
     useEffect(() => {
-        if (match !== null && match.status !== "FINISHED"){
+        let intervalId;
+        if (match !== null){
             const sets = JSON.parse(match.setsTimes)
             let timeSum = 0
             sets.forEach(set => {
@@ -102,10 +103,22 @@ const MatchDetailsPage = () => {
             });
             
 
-            const intervalId = setInterval(() => {
-                setWholeMatchTime(timeSum)
-                timeSum += 1000
-            }, 1000);
+            if (match.status !== "FINISHED") {
+                intervalId = setInterval(() => {
+                    setWholeMatchTime(timeSum + 1000);
+                    timeSum += 1000;
+                }, 1000);
+            } else {
+                let totalMatchTime = 0
+                sets.forEach(set => {
+                    const setStartTime = new Date(set.setStartTime);
+                    const setEndTime = new Date(set.setEndTime);
+                    const duration = setEndTime - setStartTime;
+
+                    totalMatchTime += duration
+                });
+                setWholeMatchTime(totalMatchTime)
+            }
 
             return () => {
                 if (intervalId) {
@@ -113,7 +126,7 @@ const MatchDetailsPage = () => {
                 }
             };
         }
-    }, [matchId, currentSetNumber])
+    }, [matchId, currentSetNumber, match])
 
     useEffect(() => {
         let intervalId;
@@ -140,7 +153,7 @@ const MatchDetailsPage = () => {
             }
         };
         
-    }, [currentSetNumber, matchId])
+    }, [currentSetNumber, matchId, match])
 
     const formatTime = (milliseconds) => {
         const totalSeconds = Math.floor(milliseconds / 1000);
