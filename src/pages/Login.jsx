@@ -9,7 +9,7 @@ const Login = () => {
   const DAYS_TO_COOKIE_EXPIRE = 1
 
   const [loginError, setLoginError] = useState(null);
-  const websocket = useWebSocket();
+  const { websocket, isConnected } = useWebSocket();
   const navigate = useNavigate()
 
   const handleGoogleLoginSuccess = (response) => {

@@ -7,14 +7,12 @@ import ManageTeams from '../components/ManageTeams';
 
 const StartPage = () => {
     const [teams, setTeams] = useState([]);
-    const [matches, setMatches] = useState([])
-
-    const websocket = useWebSocket();
+    const [matches, setMatches] = useState([]);
+    const { websocket, isConnected } = useWebSocket();
 
     useEffect(() => {
         const handleTeamsMessage = (message) => {
             const data = JSON.parse(message.body);
-            console.log('Received teams data:', data);
             setTeams(data);
         };
 
@@ -23,31 +21,23 @@ const StartPage = () => {
             setMatches(data);
         };
 
-        if (websocket) {
-            websocket.onConnect = () => {
-                websocket.subscribe('/topic/teams', handleTeamsMessage);
-                websocket.publish({ destination: '/app/getTeams' });
+        if (isConnected && websocket) {
+            websocket.subscribe('/topic/teams', handleTeamsMessage);
+            websocket.publish({ destination: '/app/getTeams' });
 
-                websocket.subscribe('/topic/matches', handleGettingMatches);
-                websocket.publish({ destination: '/app/getMatches' });
-            };
+            websocket.subscribe('/topic/matches', handleGettingMatches);
+            websocket.publish({ destination: '/app/getMatches' });
         }
-
-        return () => {
-            if (websocket) {
-                websocket.disconnect();
-            }
-        };
-    }, [websocket]);
+    }, [isConnected, websocket]);
 
     return (
         <div>
             <UserInfoNav />
             <div className='flex mb-20'>
-                <AddMatch teams={teams} websocket={websocket}/>
+                <AddMatch teams={teams} websocket={websocket} />
                 <ManageTeams teams={teams} websocket={websocket} />
             </div>
-            <MatchesList matches={matches} websocket={websocket}/>
+            <MatchesList matches={matches} websocket={websocket} />
         </div>
     );
 };

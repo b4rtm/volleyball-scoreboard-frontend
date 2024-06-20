@@ -11,7 +11,7 @@ const MatchDetailsPage = () => {
     const [currentSetTime, setCurrentSetTime] = useState("")
     const [currentSetNumber, setCurrentSetNumber] = useState(-1)
     const [wholeMatchTime, setWholeMatchTime] = useState(0);
-    const websocket = useWebSocket();
+    const { websocket, isConnected } = useWebSocket();
     const { matchId } = useParams();
 
     useEffect(() => {
@@ -37,19 +37,11 @@ const MatchDetailsPage = () => {
             setMatch(targetMatch);
         };
 
-        if (websocket) {
-            websocket.onConnect = () => {
+        if (isConnected && websocket) {
                 websocket.subscribe(`/topic/matches`, handleMatchMessage);
                 websocket.publish({ destination: `/app/getMatches` });
-            };
         }
-
-        return () => {
-            if (websocket) {
-                websocket.disconnect();
-            }
-        };
-    }, [websocket, matchId]);
+    }, [isConnected, websocket, matchId]);
 
     const switchSides = () => {
         if (match && match.status !== "FINISHED") {
@@ -82,7 +74,7 @@ const MatchDetailsPage = () => {
         }
 
 
-    }, [match, matchId, currentSetNumber]);
+    }, [match, matchId, currentSetNumber, websocket]);
 
     useEffect(() => {
         let intervalId;
