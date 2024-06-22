@@ -56,7 +56,8 @@ const Result = ({match, teamA, teamB, websocket}) => {
     }
 
     const isEndSet = () => {
-        const pointToEndSet = match.pointsToWinSet;
+        let pointToEndSet;
+        match.isTieBreak ? pointToEndSet = match.pointsToWinTieBreak : pointToEndSet = match.pointsToWinSet;
         const teamAPoints = calculatePoints(match.teamA);
         const teamBPoints = calculatePoints(match.teamB);
 
