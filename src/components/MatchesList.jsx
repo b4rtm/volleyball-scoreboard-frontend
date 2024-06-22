@@ -82,8 +82,10 @@ const MatchesList = ({ matches, websocket }) => {
 
     const formatTime = (milliseconds) => {
         const totalSeconds = Math.floor(milliseconds / 1000);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
+        let minutes = Math.floor(totalSeconds / 60);
+        minutes = minutes < 0 ? 0 : minutes;
+        let seconds = totalSeconds % 60;
+        seconds = seconds < 0 ? 0 : seconds;
         return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     };
 

@@ -149,8 +149,10 @@ const MatchDetailsPage = () => {
 
     const formatTime = (milliseconds) => {
         const totalSeconds = Math.floor(milliseconds / 1000);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
+        let minutes = Math.floor(totalSeconds / 60);
+        minutes = minutes < 0 ? 0 : minutes;
+        let seconds = totalSeconds % 60;
+        seconds = seconds < 0 ? 0 : seconds;
         return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     };
 
@@ -162,7 +164,6 @@ const MatchDetailsPage = () => {
 
         let setMatchDuration = wholeMatchTime ? formatTime(wholeMatchTime) : "00:00"
 
-        // Ustalenie kolorów drużyn na podstawie isSwitched
         const teamAColor = isSwitched ? "bg-green-100" : "bg-blue-100";
         const teamBColor = isSwitched ? "bg-blue-100" : "bg-green-100";
 
