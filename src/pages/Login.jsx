@@ -14,17 +14,14 @@ const Login = () => {
 
   const handleGoogleLoginSuccess = (response) => {
     console.log('Logowanie Google zakończone sukcesem', response);
-    const decodedToken = jwtDecode(response.credential);
-    sendLoginRequest(decodedToken);
+    sendLoginRequest(jwtDecode(response.credential));
     
     Cookies.set('userData', JSON.stringify({
-      userToken: decodedToken
+      userToken: response.credential
     }), { expires: DAYS_TO_COOKIE_EXPIRE }); 
 
     navigate('/start')
   };
-
-
 
 
   const handleGoogleLoginError = (response) => {

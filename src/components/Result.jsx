@@ -1,3 +1,5 @@
+import Cookies from 'js-cookie';
+
 const Result = ({match, teamA, teamB, websocket}) => {
 
     const calculatePoints = (team) => {
@@ -27,8 +29,15 @@ const Result = ({match, teamA, teamB, websocket}) => {
                 point: points,
                 opponentBreak: 0
             };
+
+            let token = Cookies.get('userData');
+            token = JSON.parse(token).userToken
+
             websocket.publish({
                 destination: `/app/updateScore/${match.id}`,
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
                 body: JSON.stringify(payload),
             });
         }
@@ -36,22 +45,40 @@ const Result = ({match, teamA, teamB, websocket}) => {
 
     const takeTimeout = (team) => {
         if(match.status !== "FINISHED"){
+            let token = Cookies.get('userData');
+            token = JSON.parse(token).userToken
+            
             websocket.publish({
                 destination: `/app/timeout/${match.id}`,
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
                 body: JSON.stringify(team.id),
             });
         }
     }
 
     const endSet = () => {
+        let token = Cookies.get('userData');
+        token = JSON.parse(token).userToken
+
         websocket.publish({
-            destination: `/app/endSet/${match.id}`
+            destination: `/app/endSet/${match.id}`,
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
         });
     }
 
     const endMatch = () => {
+        let token = Cookies.get('userData');
+        token = JSON.parse(token).userToken
+
         websocket.publish({
-            destination: `/app/endMatch/${match.id}`
+            destination: `/app/endMatch/${match.id}`,
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
         });
     }
 

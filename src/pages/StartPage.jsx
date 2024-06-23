@@ -4,6 +4,8 @@ import UserInfoNav from '../components/UserInfoNav';
 import MatchesList from '../components/MatchesList';
 import { useWebSocket } from '../WebSocketContext';
 import ManageTeams from '../components/ManageTeams';
+import Cookies from 'js-cookie';
+
 
 const StartPage = () => {
     const [teams, setTeams] = useState([]);
@@ -21,12 +23,25 @@ const StartPage = () => {
             setMatches(data);
         };
 
+        let token = Cookies.get('userData');
+        token = JSON.parse(token).userToken
+
         if (isConnected && websocket) {
             websocket.subscribe('/topic/teams', handleTeamsMessage);
-            websocket.publish({ destination: '/app/getTeams' });
+            websocket.publish({ 
+                destination: '/app/getTeams',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
 
             websocket.subscribe('/topic/matches', handleGettingMatches);
-            websocket.publish({ destination: '/app/getMatches' });
+            websocket.publish({ 
+                destination: '/app/getMatches',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
         }
     }, [isConnected, websocket]);
 

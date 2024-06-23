@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Cookies from 'js-cookie';
 
 const ManageTeams = ({ teams, websocket }) => {
     const [teamName, setTeamName] = useState('');
@@ -20,8 +21,14 @@ const ManageTeams = ({ teams, websocket }) => {
             players: JSON.stringify({ players: players })
         };
 
+        let token = Cookies.get('userData');
+        token = JSON.parse(token).userToken
+
         websocket.publish({
             destination: '/app/addTeam',
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
             body: JSON.stringify(team),
         });
 
@@ -58,8 +65,14 @@ const ManageTeams = ({ teams, websocket }) => {
             players: JSON.stringify({ players: players })
         };
 
+        let token = Cookies.get('userData');
+        token = JSON.parse(token).userToken
+
         websocket.publish({
             destination: '/app/updateTeam',
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
             body: JSON.stringify(updatedTeam),
         });
 
@@ -84,8 +97,14 @@ const ManageTeams = ({ teams, websocket }) => {
             return;
         }
 
+        let token = Cookies.get('userData');
+        token = JSON.parse(token).userToken
+
         websocket.publish({
             destination: '/app/deleteTeam',
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
             body: JSON.stringify({ id: teamToDelete }),
         });
 

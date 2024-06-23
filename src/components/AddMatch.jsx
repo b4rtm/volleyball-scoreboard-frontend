@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import moment from 'moment';
+import Cookies from 'js-cookie';
 
 const AddMatch = ({ teams, websocket }) => {
     const [teamA, setTeamA] = useState('');
@@ -54,8 +55,14 @@ const AddMatch = ({ teams, websocket }) => {
             setsTimes
         };
 
+        let token = Cookies.get('userData');
+        token = JSON.parse(token).userToken
+
         websocket.publish({
             destination: '/app/addMatch',
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
             body: JSON.stringify(match),
         });
 
