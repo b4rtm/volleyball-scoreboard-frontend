@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { format } from 'date-fns';
 import { Link } from "react-router-dom";
+import Cookies from 'js-cookie';
 
 const MatchesList = ({ matches, websocket }) => {
     const TEXT_WIDTH_PX = 9
@@ -14,9 +15,17 @@ const MatchesList = ({ matches, websocket }) => {
             console.log('WebSocket is not connected');
             return;
         }
+        
+        let token = Cookies.get('userData');
+        token = JSON.parse(token).userToken
     
         websocket.onConnect = () => {
-            websocket.publish({ destination: '/app/getMatches' });
+            websocket.publish({ 
+                destination: '/app/getMatches',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+            });
         };
     }, [websocket]);
 
@@ -67,8 +76,14 @@ const MatchesList = ({ matches, websocket }) => {
     };
 
     const deleteMatch = (match) => {
+        let token = Cookies.get('userData');
+        token = JSON.parse(token).userToken
+
         websocket.publish({
             destination: `/app/deleteMatch/${match.id}`,
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
         })
         window.location.reload()
     }

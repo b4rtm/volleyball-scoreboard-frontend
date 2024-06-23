@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import * as stomp from '@stomp/stompjs';
+import Cookies from 'js-cookie';
 
 const WebSocketContext = createContext(null);
 
@@ -8,12 +9,23 @@ export const WebSocketProvider = ({ children }) => {
     const [isConnected, setIsConnected] = useState(false);
 
     useEffect(() => {
+        let token = Cookies.get('userData');
+        token = JSON.parse(token).userToken
+        console.log("WYSLANO POLACZENIE")
+        console.log(`Bearer ${token}`)
         const client = new stomp.Client({
             brokerURL: 'ws://127.0.0.1:8080/websocket',
+        
+            
             onConnect: () => {
                 console.log('Connected to WebSocket');
                 setIsConnected(true);
                 setWebsocket(client);
+
+                client.subscribe('/topic/errors', (message) => {
+                    console.error('Error: ' + message.body);
+                    alert('Error: ' + message.body);
+                })
             },
             onDisconnect: () => {
                 console.log('Disconnected from WebSocket');
@@ -43,7 +55,7 @@ export const WebSocketProvider = ({ children }) => {
         };
     }, []);
 
-    return (
+    return (    
         <WebSocketContext.Provider value={{ websocket, isConnected }}>
             {children}
         </WebSocketContext.Provider>

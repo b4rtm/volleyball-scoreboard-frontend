@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import TeamDetails from '../components/TeamDetails';
 import Result from '../components/Result';
 import MainTimer from '../components/MainTimer';
+import Cookies from 'js-cookie';
 
 const MatchDetailsPage = () => {
     const [match, setMatch] = useState(null);
@@ -37,9 +38,17 @@ const MatchDetailsPage = () => {
             setMatch(targetMatch);
         };
 
+        let token = Cookies.get('userData');
+        token = JSON.parse(token).userToken
+
         if (isConnected && websocket) {
                 websocket.subscribe(`/topic/matches`, handleMatchMessage);
-                websocket.publish({ destination: `/app/getMatches` });
+                websocket.publish({ 
+                    destination: `/app/getMatches`,
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    },
+                });
         }
     }, [isConnected, websocket, matchId]);
 
@@ -70,7 +79,15 @@ const MatchDetailsPage = () => {
 
         if (websocket){
             websocket.subscribe(`/topic/currentSetNumber/${matchId}`, handleCurrentSetNumberRes);
-            websocket.publish({ destination: `/app/currentSetNumber/${matchId}` });
+            let token = Cookies.get('userData');
+            token = JSON.parse(token).userToken
+
+            websocket.publish({ 
+                destination: `/app/currentSetNumber/${matchId}`,
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+            });
         }
 
 
