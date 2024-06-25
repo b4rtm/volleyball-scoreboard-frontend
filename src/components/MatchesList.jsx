@@ -85,7 +85,6 @@ const MatchesList = ({ matches, websocket }) => {
                 Authorization: `Bearer ${token}`
             },
         })
-        window.location.reload()
     }
 
     const toggleTableVisibility = (matchId) => {

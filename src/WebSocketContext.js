@@ -9,10 +9,6 @@ export const WebSocketProvider = ({ children }) => {
     const [isConnected, setIsConnected] = useState(false);
 
     useEffect(() => {
-        let token = Cookies.get('userData');
-        token = JSON.parse(token).userToken
-        console.log("WYSLANO POLACZENIE")
-        console.log(`Bearer ${token}`)
         const client = new stomp.Client({
             brokerURL: 'ws://127.0.0.1:8080/websocket',
         
@@ -22,7 +18,7 @@ export const WebSocketProvider = ({ children }) => {
                 setIsConnected(true);
                 setWebsocket(client);
 
-                client.subscribe('/topic/errors', (message) => {
+                client.subscribe('/user/topic/errors', (message) => {
                     console.error('Error: ' + message.body);
                     alert('Error: ' + message.body);
                 })
