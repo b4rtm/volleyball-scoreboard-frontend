@@ -129,7 +129,7 @@ const Result = ({match, teamA, teamB, websocket}) => {
                     <p className="text-black text-1l bg-white-800 p-4 mr-4">{calculateTimeouts(teamA)}/2</p>
                 </div>
 
-                <button className="text-black text-2l font-bold bg-white-800 p-4 mr-4 rounded-lg shadow-md" onClick={() => updatePoint(teamB, calculatePoints(teamA)-1)}>-1</button>
+                <button className="text-black text-2l font-bold bg-white-800 p-4 mr-4 rounded-lg shadow-md" onClick={() => updatePoint(teamA, calculatePoints(teamA)-1)}>-1</button>
                 <button className="text-black text-7xl font-bold bg-white-800 p-4 mr-4 rounded-lg shadow-md" onClick={() => updatePoint(teamA, calculatePoints(teamA)+1)}>{calculatePoints(teamA)}</button>
                 <p className="text-5xl">:</p>
                 <button className="text-black text-7xl font-bold bg-white-800 p-4 ml-4 rounded-lg shadow-md" onClick={() => updatePoint(teamB, calculatePoints(teamB)+1)}>{calculatePoints(teamB)}</button>
