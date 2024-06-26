@@ -10,7 +10,7 @@ export const WebSocketProvider = ({ children }) => {
 
     useEffect(() => {
         const client = new stomp.Client({
-            brokerURL: 'ws://https://volleyball-scoreboard-backend.onrender.com:8080/websocket',
+            brokerURL: 'ws://http://volleyball-scoreboard-backend.onrender.com:8080/websocket',
         
             
             onConnect: () => {
